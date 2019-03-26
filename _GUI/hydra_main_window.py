@@ -911,7 +911,7 @@ def do_doa():
     form.checkBox_en_DOA_MUSIC.setChecked(True if en_MUSIC=="on" else False)
 
     en_fbavg = request.forms.get('en_fbavg')
-    form.checkBox_en_DOA_FB_avg.setChecked(True if en_MUSIC=="on" else False)
+    form.checkBox_en_DOA_FB_avg.setChecked(True if en_fbavg=="on" else False)
 
     form.set_DOA_params()
 
