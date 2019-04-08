@@ -125,10 +125,10 @@ class SignalProcessor(QtCore.QThread):
         self.spectrum_sample_size = 2**14 #2**14
         self.DOA_sample_size = 2**15 # Connect to GUI value??
         self.xcorr_sample_size = 2**18 #2**18
-        self.spectrum = np.ones((self.channel_number+1,self.spectrum_sample_size), dtype=float)
-        self.xcorr = np.ones((self.channel_number-1,self.xcorr_sample_size*2), dtype=complex)        
+        self.spectrum = np.ones((self.channel_number+1,self.spectrum_sample_size), dtype=np.float32)
+        self.xcorr = np.ones((self.channel_number-1,self.xcorr_sample_size*2), dtype=np.complex64)        
         self.phasor_win = 2**10 # Phasor plot window
-        self.phasors = np.ones((self.channel_number-1, self.phasor_win), dtype=complex)
+        self.phasors = np.ones((self.channel_number-1, self.phasor_win), dtype=np.complex64)
         self.run_processing = False
         
         # Result vectors
@@ -154,23 +154,21 @@ class SignalProcessor(QtCore.QThread):
         self.run_processing = True
         
         while self.run_processing:
-            start_time = time.time()            
+            start_time = time.time()
 
             # Download samples
             #time.sleep(0.01)
-            if(self.en_sync or self.en_spectrum):
-                time.sleep(0.25)
+            #if(self.en_sync or self.en_spectrum):
+            time.sleep(0.25)
             #if(self.en_PR_processing):
-            #    time.sleep(1.5)
+            #time.sleep(1)
 
                 #busy_wait(0.5)
-
-
             self.module_receiver.download_iq_samples()
 
             self.DOA_sample_size = self.module_receiver.iq_samples[0,:].size
             self.xcorr_sample_size = self.module_receiver.iq_samples[0,:].size
-            self.xcorr = np.ones((self.channel_number-1,self.xcorr_sample_size*2), dtype=complex) 
+            self.xcorr = np.ones((self.channel_number-1,self.xcorr_sample_size*2), dtype=np.complex64) 
             
             # Check overdrive
             if self.module_receiver.overdrive_detect_flag:
@@ -242,7 +240,7 @@ class SignalProcessor(QtCore.QThread):
 
 
 # Code to maintain sync
-            if self.timed_sync and not self.en_sync:
+            '''if self.timed_sync and not self.en_sync:
                 if not self.noise_checked:
                     self.module_receiver.switch_noise_source(0)
                 self.timed_sync = False
@@ -258,7 +256,7 @@ class SignalProcessor(QtCore.QThread):
                 self.module_receiver.switch_noise_source(1)
                 time.sleep(0.1)
                 self.runningSync = 1
-                self.timed_sync = True
+                self.timed_sync = True'''
 
             stop_time = time.time()
             self.signal_period.emit(stop_time - start_time)
@@ -272,11 +270,11 @@ class SignalProcessor(QtCore.QThread):
         delays = np.array([[0],[0],[0]])
         phases = np.array([[0],[0],[0]])
         # Channel matching
-        np_zeros = np.zeros(N, dtype=complex)
+        np_zeros = np.zeros(N, dtype=np.complex64)
+        x_padd = np.concatenate([iq_samples[0, :], np_zeros])
+        x_fft = np.fft.fft(x_padd)
         for m in np.arange(1, self.channel_number):
-            x_padd = np.concatenate([iq_samples[0, :], np_zeros])
             y_padd = np.concatenate([np_zeros, iq_samples[m, :]])
-            x_fft = np.fft.fft(x_padd)
             y_fft = np.fft.fft(y_padd)
             self.xcorr[m-1] = np.fft.ifft(x_fft.conj() * y_fft)
             delay = np.argmax(np.abs(self.xcorr[m-1])) - N
@@ -285,14 +283,14 @@ class SignalProcessor(QtCore.QThread):
             
             #offset = 50000                     
             #self.phasors[m-1, :] = (iq_samples[0, offset: self.phasor_win+offset] * iq_samples[m, offset+delay: self.phasor_win+offset+delay].conj())
-            self.phasors[m-1, :] = (iq_samples[0, 0: self.phasor_win] * iq_samples[m, 0: self.phasor_win].conj())
+            #self.phasors[m-1, :] = (iq_samples[0, 0: self.phasor_win] * iq_samples[m, 0: self.phasor_win].conj())
             
             """
             self.IQSamples[1, :] = np.roll(self.IQSamples[1, :], delay * -1)
             if delay > 0:
-                self.IQSamples[1, -delay::] = np.zeros(delay, dtype=complex)
+                self.IQSamples[1, -delay::] = np.zeros(delay, dtype=np.complex64)
             if delay < 0:
-                self.IQSamples[1, 0: np.abs(delay)] = np.zeros(np.abs(delay), dtype=complex)
+                self.IQSamples[1, 0: np.abs(delay)] = np.zeros(np.abs(delay), dtype=np.complex64)
             """
             #msg = "[ INFO ] delay: " + str(delay)
             #print(msg)

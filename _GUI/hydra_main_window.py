@@ -57,10 +57,10 @@ except AttributeError:
 import matplotlib
 matplotlib.use('Agg') # For Raspberry Pi compatiblity
 from matplotlib import cm
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+#from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+#from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
+#import matplotlib.pyplot as plt
+#import matplotlib.patches as patches
 
 
 from hydra_main_window_layout import Ui_MainWindow
@@ -83,7 +83,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         f = open('/dev/null', 'w')
         sys.stdout = f
 
-
         self.tabWidget.setCurrentIndex(0)
 
         # Set pyqtgraph to use white background, black foreground
@@ -99,13 +98,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.export_spectrum = pg.exporters.ImageExporter(self.win_spectrum.scene())
 
-
         self.plotWidget_spectrum_ch1 = self.win_spectrum.addPlot(title="Channel 1")
         self.plotWidget_spectrum_ch2 = self.win_spectrum.addPlot(title="Channel 2")
         self.win_spectrum.nextRow()
         self.plotWidget_spectrum_ch3 = self.win_spectrum.addPlot(title="Channel 3")
         self.plotWidget_spectrum_ch4 = self.win_spectrum.addPlot(title="Channel 4")
-
 
         self.gridLayout_spectrum.addWidget(self.win_spectrum, 1, 1, 1, 1)
 
@@ -116,8 +113,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.spectrum_ch2_curve = self.plotWidget_spectrum_ch2.plot(x, y[1], clear=True, pen='r')
         self.spectrum_ch3_curve = self.plotWidget_spectrum_ch3.plot(x, y[2], clear=True, pen='g')
         self.spectrum_ch4_curve = self.plotWidget_spectrum_ch4.plot(x, y[3], clear=True, pen='c')
-
-
 
 
         self.plotWidget_spectrum_ch1.setLabel("bottom", "Frequency [MHz]")
@@ -264,6 +259,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.module_receiver.block_size = int(sys.argv[1]) * 1024
 
         self.module_signal_processor = SignalProcessor(module_receiver=self.module_receiver)        
+
         self.module_signal_processor.signal_overdrive.connect(self.power_level_update)
         self.module_signal_processor.signal_period.connect(self.period_time_update)
         self.module_signal_processor.signal_spectrum_ready.connect(self.spectrum_plot)
@@ -276,10 +272,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.set_DOA_params()  
         self.set_windowing_mode()
 
+
         self.DOA_time = time.time()
         self.PR_time = time.time()
         self.sync_time = time.time()
         self.spectrum_time = time.time()
+
+
+
 
         #self.spectrum_plot()        
         #self.delay_plot()
@@ -552,15 +552,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         phasor14 =self.module_signal_processor.phasors[2,:]
 
         N = np.size(xcorr12)//2
-                
+
         xcorr12 -= np.max(xcorr12)
         xcorr13 -= np.max(xcorr13)
         xcorr14 -= np.max(xcorr14)
-        
+
         #phasor12 /= np.max(np.abs(phasor12))
         #phasor13 /= np.max(np.abs(phasor13))
         #phasor14 /= np.max(np.abs(phasor14))
-            
+
         M = 500
         max_delay = np.max(np.abs(self.module_signal_processor.delay_log[:,-1])) 
         if max_delay+50 > M:
@@ -575,8 +575,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plotWidget_sync_absx.plot(delay_label, xcorr13[N-M:N+M+1], pen='r')
         self.plotWidget_sync_absx.plot(delay_label, xcorr14[N-M:N+M+1], pen='g')
 
-
-        
         # Plot delay history
 
         self.plotWidget_sync_sampd.clear()
@@ -587,11 +585,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
         # Plot phasors
-        
         # For averaged phasors
-
         #self.plotWidget_sync_normph.clear()
-
         #self.plotWidget_sync_normph.plot(np.cos(np.deg2rad(self.module_signal_processor.phase_log[0,:])), np.sin(np.deg2rad(self.module_signal_processor.phase_log[0,:])), pen=None, symbol='o', symbolBrush=(100,100,255,50))
         #self.plotWidget_sync_normph.plot(np.cos(np.deg2rad(self.module_signal_processor.phase_log[0,:])), np.sin(np.deg2rad(self.module_signal_processor.phase_log[0,:])), pen=None, symbol='o', symbolBrush=(150,150,150,50))
         #self.plotWidget_sync_normph.plot(np.cos(np.deg2rad(self.module_signal_processor.phase_log[0,:])), np.sin(np.deg2rad(self.module_signal_processor.phase_log[0,:])), pen=None, symbol='o', symbolBrush=(50,50,50,50))
@@ -731,10 +726,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             CAFMatrix = CAFMatrix /  np.amax(CAFMatrix)  # Noramlize with the maximum value
             CAFMatrixLog = 20 * np.log10(CAFMatrix)  # Change to logscale
 
-            for i in range(np.shape(CAFMatrix)[0]):  # Remove extreme low values
-                for j in range(np.shape(CAFMatrix)[1]):
-                    if CAFMatrixLog[i, j] < -CAFDynRange:
-                        CAFMatrixLog[i, j] = -CAFDynRange
+            CAFMatrixLog[CAFMatrixLog < -CAFDynRange] = -CAFDynRange
+
+#            for i in range(np.shape(CAFMatrix)[0]):  # Remove extreme low values
+#                for j in range(np.shape(CAFMatrix)[1]):
+#                    if CAFMatrixLog[i, j] < -CAFDynRange:
+#                        CAFMatrixLog[i, j] = -CAFDynRange
 
             # plot
             #CAFPlot = self.axes_RD.imshow(CAFMatrixLog, interpolation='sinc', cmap='jet', origin='lower', aspect='auto')
@@ -754,9 +751,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.img_PR.clear()
             self.img_PR.setImage(plotPRImage)
 
-        #self.img_PR.getImageItem().save('/ram/pr.jpg')
-        #self.img_PR.export('/ram/pr.jpg')
-        
         currentTime = time.time()
         if((currentTime - self.PR_time) > 0.5):
             self.PR_time = currentTime
@@ -1036,9 +1030,9 @@ def do_init():
 
     return redirect('init')
 
-@route('/static/:path#.+#', name='static')
-def static(path):
-    return static_file(path, root='static')
+#@route('/static/:path#.+#', name='static')
+#def static(path):
+#    return static_file(path, root='static')
 
 @get('/stats')
 def stats():

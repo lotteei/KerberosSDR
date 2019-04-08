@@ -92,7 +92,7 @@ class ReceiverRTLSDR():
             # IQ preprocessing parameters
             self.en_dc_compensation = False
             self.fs = 1.024 * 10**6  # Sampling frequency
-            self.iq_corrections = np.array([1,1,1,1], dtype=complex)  # Used for phase and amplitude correction
+            self.iq_corrections = np.array([1,1,1,1], dtype=np.complex64)  # Used for phase and amplitude correction
             self.fir_size = 0
             self.fir_bw = 1  # Normalized to sampling frequency 
             self.fir_filter_coeffs = np.empty(0)
@@ -104,7 +104,6 @@ class ReceiverRTLSDR():
         delays = [0] + (sample_offsets.tolist())
         self.sync_fifo_descriptor.write(self.sync_delay_byte)
         self.sync_fifo_descriptor.write(pack("i"*4,*delays))
-        #print(delays)
     
     def reconfigure_tuner(self, center_freq, sample_rate, gain):
        #print("[ INFO ] Python rec: Setting receiver center frequency to:",center_freq)
@@ -135,50 +134,42 @@ class ReceiverRTLSDR():
         
         # Data preprocessing parameters
         if fir_size >0 :
-            cut_off = bw/self.fs
+            cut_off = bw/(self.fs / self.decimation_ratio)
             self.fir_filter_coeffs = signal.firwin(fir_size, cut_off, window="hann")
         self.fir_size = fir_size
         
     def download_iq_samples(self):
-            self.iq_samples = np.zeros((self.channel_number, self.block_size//2), dtype=complex)
+            self.iq_samples = np.zeros((self.channel_number, self.block_size//2), dtype=np.complex64)
             self.gc_fifo_descriptor.write(self.gate_trigger_byte)
             #print("[ INFO ] Python rec: Trigger writen")
             # -*- coding: utf-8 -*-
-
+            #time.sleep(0.5)
             read_size = self.block_size * self.channel_number
 
-            byte_data=[]
-            format_string = "B"*read_size
+            #byte_data=[]
+            #format_string = "B"*read_size
             #while True:
-            byte_array_read = sys.stdin.buffer.read(read_size)   
+            byte_array_read = sys.stdin.buffer.read(read_size)
             """                
                 if not byte_array_read or len(byte_data) >= read_size:
                     print("EOF")
                     break
             """
-            byte_data+= unpack(format_string, byte_array_read)
-            
-            #print("[ INFO ] Python rec: Bytes read")                                
-            #byte_array_read = sys.stdin.buffer.read(read_size)
-            #print("[ INFO ] Python rec: Bytes read")
-            #byte_data+= unpack(format_string, byte_array_read)
-        
-            #print("[ INFO ] Python rec: Converting..")
-            #iq_samples = np.zeros((ch_no, block_size//2), dtype=complex)
             overdrive_margin = 0.95
             self.overdrive_detect_flag = False
-            # TODO: Mod from Carl to improve the perfromance
-            #print("Converting byte_data to np array")
-            byte_data_np = np.fromiter(byte_data, 'uint8')
-            #  Check this!
+
+            byte_data_np = np.frombuffer(byte_array_read, dtype='uint8', count=read_size)
+
+            self.iq_samples.real = byte_data_np[0:self.channel_number*self.block_size:2].reshape(self.channel_number, self.block_size//2)
+            self.iq_samples.imag = byte_data_np[1:self.channel_number*self.block_size:2].reshape(self.channel_number ,self.block_size//2)
 
 
-            for m in range(self.channel_number):    
-                real = byte_data_np[m*self.block_size:(m+1)*self.block_size:2]
-                imag = byte_data_np[m*self.block_size+1:(m+1)*self.block_size:2]
+            #for m in range(self.channel_number):    
+            #    real = byte_data_np[m*self.block_size:(m+1)*self.block_size:2]
+            #    imag = byte_data_np[m*self.block_size+1:(m+1)*self.block_size:2]
                 #real = np.array(byte_data[::2], dtype=np.uint8)
                 #imag = np.array(byte_data[1::2], dtype=np.uint8)
-                self.iq_samples[m,:].real, self.iq_samples[m,:].imag = real, imag
+            #    self.iq_samples[m,:].real, self.iq_samples[m,:].imag = real, imag
                 # Check overdrive
                 #if (np.greater(self.iq_samples[m, :].real,int(127+128*overdrive_margin)).any()) or  (np.less(self.iq_samples[m, :].real, int(127-128*overdrive_margin)).any()):                      
                 #      self.overdrive_detect_flag = True
@@ -206,18 +197,18 @@ class ReceiverRTLSDR():
             #return iq_samples    
        
     def iq_preprocessing(self):
-        
+                
+        # Decimation
+        if self.decimation_ratio > 1:
+           iq_samples_dec = np.zeros((self.channel_number, round(self.block_size//2/self.decimation_ratio)), dtype=np.complex64)
+           for m in range(self.channel_number):
+               iq_samples_dec[m, :] = self.iq_samples[m, 0::self.decimation_ratio]
+           self.iq_samples = iq_samples_dec
+
         # FIR filtering
         if self.fir_size > 0:
             for m in range(self.channel_number):
                 self.iq_samples[m, :] = np.convolve(self.fir_filter_coeffs, self.iq_samples[m, :], mode="same")
-        
-        # Decimation
-        if self.decimation_ratio > 1:
-           iq_samples_dec = np.zeros((self.channel_number, round(self.block_size//2/self.decimation_ratio)), dtype="complex")
-           for m in range(self.channel_number):
-               iq_samples_dec[m, :] = self.iq_samples[m, 0::self.decimation_ratio]
-           self.iq_samples = iq_samples_dec
 
         # Remove DC content  
         if self.en_dc_compensation:
