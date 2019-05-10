@@ -58,5 +58,11 @@ Now you can run the software by typing
 
 ./run.sh
 
-
 Full software tutorial at www.rtl-sdr.com/ksdr
+
+TROUBLESHOOTING:
+
+Edit the run.sh file and comment out the >&/dev/null parts on the last line to show any errors to the terminal.
+
+
+This software was 95% developed by Tamas Peto, and makes use of his pyAPRIL and pyARGUS libraries. See his website at www.tamaspeto.com

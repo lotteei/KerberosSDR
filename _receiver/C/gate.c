@@ -27,8 +27,9 @@
 //#define BUFFER_SIZE 1024 * 128 * 4//1024*256*4
 #define CFN "_receiver/C/gate_control_fifo" // Name of the gate control fifo - Control FIFO name
 
-#define BUFFER_SIZE 256 * 1024 * 4
+//#define BUFFER_SIZE 256 * 1024 * 4
 
+int BUFFER_SIZE = 0;
 
 static sem_t trigger_sem;
 static volatile int trigger=0, exit_flag=0;
@@ -73,7 +74,7 @@ int main(int argc, char** argv)
     setvbuf(stdout, buf, _IOFBF, sizeof(buf));
 
 
-    //BUFFER_SIZE = atoi(argv[1]) * 1024 * 4;
+    BUFFER_SIZE = atoi(argv[1]) * 1024 * 4;
 
     int read_size;
     uint8_t * buffer;    
@@ -82,9 +83,9 @@ int main(int argc, char** argv)
     pthread_create(&fifo_read_thread, NULL, fifo_read_tf, NULL);
     
     // Allocate sample buffer
-    //char buffer[BUFFER_SIZE];
+   // uint8_t buffer[BUFFER_SIZE];
     buffer= malloc(BUFFER_SIZE*sizeof(uint8_t));
-    
+
     fprintf(stderr,"Start gate control\n");    
     while(1)
     {        
@@ -92,11 +93,13 @@ int main(int argc, char** argv)
             break;
         
         read_size = fread(buffer,sizeof(*buffer), BUFFER_SIZE, stdin);
+
         //read_size = read(STDIN_FILENO, buffer, BUFFER_SIZE);        
         if(read_size>0)
         {
             if(trigger == 1)
             {
+
                 fwrite(buffer, sizeof(*buffer), read_size, stdout);
                 fflush(stdout);
                 trigger --;

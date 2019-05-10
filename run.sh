@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BUFF_SIZE=256 #Must be a power of 2. Normal values are 128, 256. 512 is possible on a fast PC. NOTE: Please do not change at the moment. In future versions this may work.
-IPADDR="192.168.26.42"
+BUFF_SIZE=256 #Must be a power of 2. Normal values are 128, 256. 512 is possible on a fast PC.
+IPADDR="192.168.86.42"
 #IPADDR="192.168.4.1"
 
 # Useful to set this on low power ARM devices
@@ -47,7 +47,10 @@ mkfifo _receiver/C/rec_control_fifo
 
 # Start programs at realtime priority levels
 curr_user=$(whoami)
-sudo chrt -r 50 ionice -c 1 -n 0 ./_receiver/C/rtl_daq $BUFF_SIZE 2>/dev/null 1| sudo chrt -r 50 ./_receiver/C/sync $BUFF_SIZE 2>/dev/null 1| sudo chrt -r 50 ./_receiver/C/gate $BUFF_SIZE 2>/dev/null 1|sudo nice -n -20 sudo -u $curr_user python3 -O _GUI/hydra_main_window.py &>/dev/null $BUFF_SIZE $IPADDR&
+sudo chrt -r 50 ionice -c 1 -n 0 ./_receiver/C/rtl_daq $BUFF_SIZE 2>/dev/null 1| sudo chrt -r 50 ./_receiver/C/sync $BUFF_SIZE 2>/dev/null 1| sudo chrt -r 50 ./_receiver/C/gate $BUFF_SIZE 2>/dev/null 1|sudo nice -n -20 sudo -u $curr_user python3 -O _GUI/hydra_main_window.py $BUFF_SIZE $IPADDR &>/dev/null&
+
+# Comment the above and uncomment the below to show all errors to the log files
+#sudo chrt -r 50 ionice -c 1 -n 0 ./_receiver/C/rtl_daq $BUFF_SIZE 2>log_rtl_daq 1| sudo chrt -r 50 ./_receiver/C/sync $BUFF_SIZE 2>log_sync 1| sudo chrt -r 50 ./_receiver/C/gate $BUFF_SIZE 2>log_gate 1|sudo nice -n -20 sudo -u $curr_user python3 -O _GUI/hydra_main_window.py $BUFF_SIZE $IPADDR &>log_python&
 
 # Start PHP webserver which serves the updating images
 sudo php -S $IPADDR:8081 -t _webDisplay >&- 2>&-

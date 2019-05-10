@@ -25,12 +25,12 @@
 #include "sync.h"
 
 //2097152 - Buff size for real work
-#define BUFFER_SIZE 128 * 1024 //128*1024 // Sample 
+//#define BUFFER_SIZE 128 * 1024 //128*1024 // Sample 
 #define BUFFER_NO 2  // Buffer number
 #define CHANNEL_NO 4 // Channel number
 #define CFN "_receiver/C/sync_control_fifo" // Name of the gate control fifo - Control FIFO name
 
-//int BUFFER_SIZE = 0;
+int BUFFER_SIZE = 0;
 
 /*
  *  Signal definitions: 
@@ -105,8 +105,7 @@ int main(int argc, char** argv)
 
     setvbuf(stdout, buf, _IOFBF, sizeof(buf));
 
-
-    //BUFFER_SIZE = (atoi(argv[1])/2) * 1024;
+    BUFFER_SIZE = (atoi(argv[1])/2) * 1024;
 
     int read_size; // Stores the read bytes from stdin
     int first_read = 0;

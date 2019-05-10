@@ -157,13 +157,9 @@ class SignalProcessor(QtCore.QThread):
             start_time = time.time()
 
             # Download samples
-            #time.sleep(0.01)
             #if(self.en_sync or self.en_spectrum):
-            time.sleep(0.25)
-            #if(self.en_PR_processing):
-            #time.sleep(1)
+            time.sleep(0.25) # You can play with this value, but it may affect stability
 
-                #busy_wait(0.5)
             self.module_receiver.download_iq_samples()
 
             self.DOA_sample_size = self.module_receiver.iq_samples[0,:].size
@@ -177,8 +173,8 @@ class SignalProcessor(QtCore.QThread):
                 self.signal_overdrive.emit(0)
             
             # Display spectrum
-            if self.en_spectrum:                            
-                self.spectrum[0, :] = np.fft.fftshift(np.fft.fftfreq(self.spectrum_sample_size, 1/self.fs))/10**6                
+            if self.en_spectrum:
+                self.spectrum[0, :] = np.fft.fftshift(np.fft.fftfreq(self.spectrum_sample_size, 1/self.fs))/10**6
 
                 m = self.channel_number
                 #self.spectrum[1:m+1,:] = 10*np.log10(np.fft.fftshift(np.abs(np.fft.fft(self.module_receiver.iq_samples[0:m, 0:self.spectrum_sample_size]))))
@@ -202,7 +198,9 @@ class SignalProcessor(QtCore.QThread):
             if self.en_calib_iq:
                 # IQ correction
                 for m in range(self.channel_number):
-                    self.module_receiver.iq_corrections[m] *= np.size(self.module_receiver.iq_samples[0, :])/(np.dot(self.module_receiver.iq_samples[m, :],self.module_receiver.iq_samples[0, :].conj()))                
+                    self.module_receiver.iq_corrections[m] *= np.size(self.module_receiver.iq_samples[0, :])/(np.dot(self.module_receiver.iq_samples[m, :],self.module_receiver.iq_samples[0, :].conj()))
+                c = np.sqrt(np.sum(np.abs(self.module_receiver.iq_corrections)**2))
+                self.module_receiver.iq_corrections = np.divide(self.module_receiver.iq_corrections, c)
                 #print("Corrections: ",self.module_receiver.iq_corrections)
                 self.en_calib_iq = False
             
@@ -215,13 +213,15 @@ class SignalProcessor(QtCore.QThread):
                 #ref_vector = np.exp(1j*2*np.pi*0.5*np.cos(np.radians(0-np.arange(self.channel_number)*(360)/self.channel_number))) # UCA                
                 N= np.size(self.module_receiver.iq_samples[0, :])
                 for m in range(self.channel_number):
-                    
                     self.module_receiver.iq_corrections[m] *= ref_vector[m]*N/(np.dot(self.module_receiver.iq_samples[m, :],self.module_receiver.iq_samples[0, :].conj()))                
                 #print("Corrections: ",self.module_receiver.iq_corrections)
                 self.en_calib_DOA_90 = False
                 
             # Direction of Arrival estimation
             if self.en_DOA_estimation:
+                # Get FFT for squelch
+                self.spectrum[1,:] = 10*np.log10(np.fft.fftshift(np.abs(np.fft.fft(self.module_receiver.iq_samples[0, 0:self.spectrum_sample_size]))))
+
                 self.estimate_DOA()
                 self.signal_DOA_ready.emit()
             
@@ -307,7 +307,7 @@ class SignalProcessor(QtCore.QThread):
 
     def estimate_DOA(self):
         #print("[ INFO ] Python DSP: Estimating DOA")
-        
+
         iq_samples = self.module_receiver.iq_samples[:, 0:self.DOA_sample_size]
         # Calculating spatial correlation matrix
         R = de.corr_matrix_estimate(iq_samples.T, imp="fast")
@@ -316,8 +316,6 @@ class SignalProcessor(QtCore.QThread):
             R=de.forward_backward_avg(R)
 
         M = np.size(iq_samples, 0)
-
-
 
         if self.DOA_ant_alignment == "UCA":
             self.DOA_theta =  np.linspace(0,360,361)
@@ -351,6 +349,8 @@ class SignalProcessor(QtCore.QThread):
                 self.DOA_MEM_res = de.DOA_MEM(R, scanning_vectors,  column_select = 0)
             if self.en_DOA_MUSIC:
                 self.DOA_MUSIC_res = de.DOA_MUSIC(R, scanning_vectors, signal_dimension = 1)
+
+        print(self.DOA_MUSIC_res)
 
 
     def PR_processing(self):

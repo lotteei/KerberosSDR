@@ -164,12 +164,12 @@ class ReceiverRTLSDR():
             self.iq_samples.imag = byte_data_np[1:self.channel_number*self.block_size:2].reshape(self.channel_number ,self.block_size//2)
 
 
-            #for m in range(self.channel_number):    
-            #    real = byte_data_np[m*self.block_size:(m+1)*self.block_size:2]
-            #    imag = byte_data_np[m*self.block_size+1:(m+1)*self.block_size:2]
+     #       for m in range(self.channel_number):    
+      #          real = byte_data_np[m*self.block_size:(m+1)*self.block_size:2]
+       #         imag = byte_data_np[m*self.block_size+1:(m+1)*self.block_size:2]
                 #real = np.array(byte_data[::2], dtype=np.uint8)
                 #imag = np.array(byte_data[1::2], dtype=np.uint8)
-            #    self.iq_samples[m,:].real, self.iq_samples[m,:].imag = real, imag
+        #        self.iq_samples[m,:].real, self.iq_samples[m,:].imag = real, imag
                 # Check overdrive
                 #if (np.greater(self.iq_samples[m, :].real,int(127+128*overdrive_margin)).any()) or  (np.less(self.iq_samples[m, :].real, int(127-128*overdrive_margin)).any()):                      
                 #      self.overdrive_detect_flag = True
@@ -210,8 +210,8 @@ class ReceiverRTLSDR():
             for m in range(self.channel_number):
                 self.iq_samples[m, :] = np.convolve(self.fir_filter_coeffs, self.iq_samples[m, :], mode="same")
 
-        # Remove DC content  
-        if self.en_dc_compensation:
+        # Remove DC content (Force on for now)
+        if self.en_dc_compensation or True:
             for m in np.arange(0, self.channel_number):
                self.iq_samples[m,:]-= np.average( self.iq_samples[m,:])
            

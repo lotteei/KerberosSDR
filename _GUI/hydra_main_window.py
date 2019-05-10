@@ -80,8 +80,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
 
-        f = open('/dev/null', 'w')
-        sys.stdout = f
+        #f = open('/dev/null', 'w')
+        #sys.stdout = f
 
         self.tabWidget.setCurrentIndex(0)
 
@@ -607,83 +607,105 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def DOA_plot_helper(self, DOA_data, incident_angles, log_scale_min=None, color='b', legend=None):
 
-        DOA_data = np.divide(np.abs(DOA_data),np.max(np.abs(DOA_data))) # normalization
+        DOA_data = np.divide(np.abs(DOA_data), np.max(np.abs(DOA_data))) # normalization
         if(log_scale_min != None):        
             DOA_data = 10*np.log10(DOA_data)
             theta_index = 0        
             for theta in incident_angles:
                 if DOA_data[theta_index] < log_scale_min:
                     DOA_data[theta_index] = log_scale_min
-            theta_index += 1
+                theta_index += 1
 
         plot = self.plotWidget_DOA.plot(incident_angles, DOA_data, pen=pg.mkPen(color, width=2))
-        return plot
+        return DOA_data
 
 
     def DOA_plot(self):
-        
-        thetas =  self.module_signal_processor.DOA_theta        
+
+        thetas =  self.module_signal_processor.DOA_theta
         Bartlett  = self.module_signal_processor.DOA_Bartlett_res
         Capon  = self.module_signal_processor.DOA_Capon_res
         MEM  = self.module_signal_processor.DOA_MEM_res
         MUSIC  = self.module_signal_processor.DOA_MUSIC_res
-        
+
         DOA = 0
         DOA_results = []
+        COMBINED = np.zeros_like(thetas, dtype=np.complex)
 
         self.plotWidget_DOA.clear()
 
         if self.module_signal_processor.en_DOA_Bartlett:
-            
+
             plt = self.DOA_plot_helper(Bartlett, thetas, log_scale_min = -50, color='b')
-            
+            COMBINED += np.divide(np.abs(Bartlett),np.max(np.abs(Bartlett)))
             #de.DOA_plot(Bartlett, thetas, log_scale_min = -50, axes=self.axes_DOA)
             DOA_results.append(thetas[np.argmax(Bartlett)])
-        
+
         if self.module_signal_processor.en_DOA_Capon:
 
             self.DOA_plot_helper(Capon, thetas, log_scale_min = -50, color='g')
-
+            COMBINED += np.divide(np.abs(Capon),np.max(np.abs(Capon)))
             #de.DOA_plot(Capon, thetas, log_scale_min = -50, axes=self.axes_DOA)
             DOA_results.append(thetas[np.argmax(Capon)])
 
         if self.module_signal_processor.en_DOA_MEM:
-            
-            self.DOA_plot_helper(MEM, thetas, log_scale_min = -50, color='r')
 
+            self.DOA_plot_helper(MEM, thetas, log_scale_min = -50, color='r')
+            COMBINED += np.divide(np.abs(MEM),np.max(np.abs(MEM)))
             #de.DOA_plot(MEM, thetas, log_scale_min = -50, axes=self.axes_DOA)
             DOA_results.append(thetas[np.argmax(MEM)])
 
         if self.module_signal_processor.en_DOA_MUSIC:
-            
-            self.DOA_plot_helper(MUSIC, thetas, log_scale_min = -50, color='c')
 
+            self.DOA_plot_helper(MUSIC, thetas, log_scale_min = -50, color='c')
+            COMBINED += np.divide(np.abs(MUSIC),np.max(np.abs(MUSIC)))
             #de.DOA_plot(MUSIC, thetas, log_scale_min = -50, axes=self.axes_DOA)
             DOA_results.append(thetas[np.argmax(MUSIC)])
-            
-        DOA_results = np.array(DOA_results)
 
 
-        # Convert measured DOAs to complex numbers
-        DOA_results_c = np.exp(1j*np.deg2rad(DOA_results))
-        
-        # Average measured DOA angles
-        DOA_avg_c = np.average(DOA_results_c)
-        
-        # Convert back to degree
-        DOA = np.rad2deg(np.angle(DOA_avg_c))
-
-#        self.DOA_res_fd = open("_webDisplay/DOA_value.html","w") # DOA estimation result file descriptor        
-#        self.DOA_res_fd = open("/ram/DOA_value.html","w") # DOA estimation result file descriptor        
+        #COMBINED_LOG = 10*np.log10(COMBINED)
 
         if len(DOA_results) != 0:
+
+            # Combined Graph (beta)
+            COMBINED_LOG = self.DOA_plot_helper(COMBINED, thetas, log_scale_min = -50, color='k')
+
+            confidence = scipy.signal.find_peaks_cwt(COMBINED_LOG, np.arange(10,30), min_snr=1) #np.max(DOA_combined**2) / np.average(DOA_combined**2)
+            maxIndex = confidence[np.argmax(COMBINED_LOG[confidence])]
+            confidence_sum = 0;
+
+            #print("Peaks: " + str(confidence))
+            for val in confidence:
+               if(val != maxIndex and np.abs(COMBINED_LOG[val] - min(COMBINED_LOG)) > np.abs(min(COMBINED_LOG))*0.25):
+                  #print("Doing other peaks: " + str(val) + "combined value: " + str(COMBINED_LOG[val]))
+                  confidence_sum += 1/(np.abs(COMBINED_LOG[val]))
+               elif val == maxIndex:
+                  #print("Doing maxIndex peak: " + str(maxIndex) + "min combined: " + str(min(COMBINED_LOG)))
+                  confidence_sum += 1/np.abs(min(COMBINED_LOG))
+            # Get avg power level
+            max_power_level = np.max(self.module_signal_processor.spectrum[1,:])
+            #rms_power_level = np.sqrt(np.mean(self.module_signal_processor.spectrum[1,:]**2))
+
+            confidence_sum = 10/confidence_sum
+
+            #print("Max Power Level" + str(max_power_level))
+            #print("Confidence Sum: " + str(confidence_sum))
+
+            DOA_results = np.array(DOA_results)
+            # Convert measured DOAs to complex numbers
+            DOA_results_c = np.exp(1j*np.deg2rad(DOA_results))
+            # Average measured DOA angles
+            DOA_avg_c = np.average(DOA_results_c)
+            # Convert back to degree
+            DOA = np.rad2deg(np.angle(DOA_avg_c))
+
             # Update DOA results on the compass display
             #print("[ INFO ] Python GUI: DOA results :",DOA_results)             
             if DOA < 0:
                 DOA += 360
             #DOA = 360 - DOA
             DOA_str = str(int(DOA)) 
-            html_str = "<DOA>"+DOA_str+"</DOA>"
+            html_str = "<DOA>"+DOA_str+"</DOA><CONF>"+str(int(confidence_sum))+"</CONF><PWR>"+str(np.maximum(0, max_power_level))+"</PWR>"
             self.DOA_res_fd.seek(0)
             self.DOA_res_fd.write(html_str)
             self.DOA_res_fd.truncate()
