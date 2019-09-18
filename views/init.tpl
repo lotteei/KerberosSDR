@@ -1,5 +1,22 @@
 <html>
 <meta http-equiv="Cache-control" content="no-cache" charset="utf-8">
+
+<script>
+function check_check_box() {
+var elms = document.getElementsByClassName('disable')
+    if (document.getElementById("uniform_gain_id").checked) {
+    for (var i = 0; i < elms.length; i++) {
+        elms[i].disabled=true;
+        }
+        }
+    else {
+    for (var i = 0; i < elms.length; i++) {
+        elms[i].removeAttribute("disabled");
+        }
+        }
+}
+</script>
+
 <p><font size = "4"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></font></p>
 <hr>
 
@@ -21,6 +38,8 @@
 		<option value="7" {{!'selected="selected"' if samp_index == 7 else ""}}>2.4</option>
 		<option value="8" {{!'selected="selected"' if samp_index == 8 else ""}}>2.56</option>
 	</select></p>
+
+  <input id="uniform_gain_id" type="checkbox" name="uniform_gain" value="on" onclick="check_check_box()" {{!'checked="checked"' if uniform_gain >= 1 else ""}}> Uniform Gain<br>
 
         <p>RX1 Gain [dB]:
 	<select name = "gain">
@@ -57,7 +76,7 @@
 
 
         <p>RX2 Gain [dB]:
-	<select name = "gain_2">
+	<select class="disable" {{!'disabled' if uniform_gain >= 1 else ""}} name = "gain_2">
 		<option value="0" {{!'selected="selected"' if gain_index_2 == 0 else ""}}>0</option>
 		<option value="1" {{!'selected="selected"' if gain_index_2 == 1 else ""}}>0.9</option>
 		<option value="2" {{!'selected="selected"' if gain_index_2 == 2 else ""}}>1.4</option>
@@ -91,7 +110,7 @@
 
 
         <p>RX3 Gain [dB]:
-	<select name = "gain_3">
+	<select class="disable" {{!'disabled' if uniform_gain >= 1 else ""}} name = "gain_3">
 		<option value="0" {{!'selected="selected"' if gain_index_3 == 0 else ""}}>0</option>
 		<option value="1" {{!'selected="selected"' if gain_index_3 == 1 else ""}}>0.9</option>
 		<option value="2" {{!'selected="selected"' if gain_index_3 == 2 else ""}}>1.4</option>
@@ -125,7 +144,7 @@
 
 
         <p>RX4 Gain [dB]:
-	<select name = "gain_4">
+	<select class="disable" {{!'disabled' if uniform_gain >= 1 else ""}} name = "gain_4">
 		<option value="0" {{!'selected="selected"' if gain_index_4 == 0 else ""}}>0</option>
 		<option value="1" {{!'selected="selected"' if gain_index_4 == 1 else ""}}>0.9</option>
 		<option value="2" {{!'selected="selected"' if gain_index_4 == 2 else ""}}>1.4</option>
@@ -171,7 +190,7 @@
 	<p>Filter BW [kHz]: <input type="number" value="{{filt_bw}}" step="0.001" name="filt_bw"/></p>
 	<p>FIR Tap Size: <input type="number" value="{{fir_size}}" step="1" name="fir_size"/></p>
 	<p>Decimation: <input type="number" value="{{decimation}}" step="1" name="decimation"/></p>
-        
+
         <p><input value="Update IQ Paramaters" type="submit" /></p>
 </form>
 <hr>

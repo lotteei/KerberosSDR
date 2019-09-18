@@ -83,42 +83,46 @@ class Ui_MainWindow(object):
         #self.doubleSpinBox_sampling_freq.setMaximum(3.2)
         #self.doubleSpinBox_sampling_freq.setObjectName(_fromUtf8("doubleSpinBox_sampling_freq"))
         #self.gridLayout_16.addWidget(self.doubleSpinBox_sampling_freq, 1, 1, 1, 1)
-        
+
         self.comboBox_sampling_freq = QtGui.QComboBox(self.groupBox_7)
         self.comboBox_sampling_freq.setObjectName(_fromUtf8("comboBox_sampling_freq"))
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
-        self.comboBox_sampling_freq.addItem(_fromUtf8(""))        
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
+        self.comboBox_sampling_freq.addItem(_fromUtf8(""))
         self.gridLayout_16.addWidget(self.comboBox_sampling_freq, 1, 1, 1, 1)
 
 
+        self.checkBox_en_uniform_gain = QtGui.QCheckBox(self.groupBox_7)
+        self.checkBox_en_uniform_gain.setObjectName(_fromUtf8("checkBox_en_uniform_gain"))
+        self.gridLayout_16.addWidget(self.checkBox_en_uniform_gain, 2, 0, 1, 1)
+
         self.label_18 = QtGui.QLabel(self.groupBox_7)
         self.label_18.setObjectName(_fromUtf8("label_18"))
-        self.gridLayout_16.addWidget(self.label_18, 2, 0, 1, 1)
+        self.gridLayout_16.addWidget(self.label_18, 3, 0, 1, 1)
 
 
         self.label_gain_2 = QtGui.QLabel(self.groupBox_7)
         self.label_gain_2.setObjectName(_fromUtf8("label_gain_2"))
-        self.gridLayout_16.addWidget(self.label_gain_2, 3, 0, 1, 1)
+        self.gridLayout_16.addWidget(self.label_gain_2, 4, 0, 1, 1)
 
 
         self.label_gain_3 = QtGui.QLabel(self.groupBox_7)
         self.label_gain_3.setObjectName(_fromUtf8("label_gain_3"))
-        self.gridLayout_16.addWidget(self.label_gain_3, 4, 0, 1, 1)
+        self.gridLayout_16.addWidget(self.label_gain_3, 5, 0, 1, 1)
 
 
         self.label_gain_4 = QtGui.QLabel(self.groupBox_7)
         self.label_gain_4.setObjectName(_fromUtf8("label_gain_4"))
-        self.gridLayout_16.addWidget(self.label_gain_4, 5, 0, 1, 1)
+        self.gridLayout_16.addWidget(self.label_gain_4, 6, 0, 1, 1)
 
 
-        
+
         self.comboBox_gain = QtGui.QComboBox(self.groupBox_7)
         self.comboBox_gain.setObjectName(_fromUtf8("comboBox_gain"))
         self.comboBox_gain.addItem(_fromUtf8(""))
@@ -150,7 +154,7 @@ class Ui_MainWindow(object):
         self.comboBox_gain.addItem(_fromUtf8(""))
         self.comboBox_gain.addItem(_fromUtf8(""))
         self.comboBox_gain.addItem(_fromUtf8(""))
-        self.gridLayout_16.addWidget(self.comboBox_gain, 2, 1, 1, 1)
+        self.gridLayout_16.addWidget(self.comboBox_gain, 3, 1, 1, 1)
 
 
 
@@ -186,7 +190,7 @@ class Ui_MainWindow(object):
         self.comboBox_gain_2.addItem(_fromUtf8(""))
         self.comboBox_gain_2.addItem(_fromUtf8(""))
         self.comboBox_gain_2.addItem(_fromUtf8(""))
-        self.gridLayout_16.addWidget(self.comboBox_gain_2, 3, 1, 1, 1)
+        self.gridLayout_16.addWidget(self.comboBox_gain_2, 4, 1, 1, 1)
 
 
 
@@ -221,7 +225,7 @@ class Ui_MainWindow(object):
         self.comboBox_gain_3.addItem(_fromUtf8(""))
         self.comboBox_gain_3.addItem(_fromUtf8(""))
         self.comboBox_gain_3.addItem(_fromUtf8(""))
-        self.gridLayout_16.addWidget(self.comboBox_gain_3, 4, 1, 1, 1)
+        self.gridLayout_16.addWidget(self.comboBox_gain_3, 5, 1, 1, 1)
 
 
 
@@ -256,7 +260,7 @@ class Ui_MainWindow(object):
         self.comboBox_gain_4.addItem(_fromUtf8(""))
         self.comboBox_gain_4.addItem(_fromUtf8(""))
         self.comboBox_gain_4.addItem(_fromUtf8(""))
-        self.gridLayout_16.addWidget(self.comboBox_gain_4, 5, 1, 1, 1)
+        self.gridLayout_16.addWidget(self.comboBox_gain_4, 6, 1, 1, 1)
 
 
 
@@ -315,7 +319,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.page)
         self.horizontalLayout_2.setMargin(0)
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
-        
+
         self.groupBox = QtGui.QGroupBox(self.page)
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.gridLayout_9 = QtGui.QGridLayout(self.groupBox)
@@ -327,7 +331,7 @@ class Ui_MainWindow(object):
         self.label_12 = QtGui.QLabel(self.groupBox)
         self.label_12.setObjectName(_fromUtf8("label_12"))
         self.gridLayout_8.addWidget(self.label_12, 0, 0, 1, 1)
-        
+
 
 
         self.checkBox_en_sync_display = QtGui.QCheckBox(self.groupBox)
@@ -551,7 +555,7 @@ class Ui_MainWindow(object):
         self.comboBox_td_filter_method.addItem(_fromUtf8(""))
         self.gridLayout_18.addWidget(self.comboBox_td_filter_method, 1, 1, 1, 1)
         self.gridLayout_19.addLayout(self.gridLayout_18, 0, 0, 1, 1)
-        
+
         #self.groupBox_9 = QtGui.QGroupBox(self.groupBox_5)
         self.groupBox_9 = QtGui.QGroupBox(self.page_3)
         self.groupBox_9.setObjectName(_fromUtf8("groupBox_9"))
@@ -735,6 +739,8 @@ class Ui_MainWindow(object):
         self.comboBox_sampling_freq.setItemText(7, _translate("KerberosSDR", "2.4", None))
         self.comboBox_sampling_freq.setItemText(8, _translate("KerberosSDR", "2.56", None))
         self.comboBox_sampling_freq.setCurrentIndex(2)
+
+        self.checkBox_en_uniform_gain.setText(_translate("MainWindow", "Uniform Gain", None))
 
 
         self.label_3.setText(_translate("KerberosSDR", "Center frequency [MHz]:", None))
@@ -937,7 +943,6 @@ class Ui_MainWindow(object):
         self.label_36.setToolTip(_translate("MainWindow", "<html><head/><body><p>Guard window has a rectangular shape ( G x GL cell), where G is the input data here</p></body></html>", None))
         self.label_36.setText(_translate("MainWindow", "Guard window: ", None))
 
-
         self.groupBox_6.setTitle(_translate("KerberosSDR", "Status ", None))
         self.label_power_level.setText(_translate("KerberosSDR", "OK", None))
         self.label_17.setText(_translate("KerberosSDR", "Powel level:", None))
@@ -949,4 +954,3 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_symc), _translate("KerberosSDR", "Sync", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_DOA), _translate("KerberosSDR", "DOA estimation", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("KerberosSDR", "Passive radar", None))
-
