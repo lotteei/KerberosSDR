@@ -16,7 +16,8 @@
 		<option value="1" {{!'selected="selected"' if ant_arrangement_index == 1 else ""}}>UCA</option>
 	</select></p>
 
-	<p>Spacing [lambda]: <input type="number" value="{{ant_spacing}}" step="0.0001" name="ant_spacing"/></p>
+	<!-- <p>Spacing [lambda]: <input type="number" value="{ {ant_spacing} }" step="0.0001" name="ant_spacing"/></p> -->
+  <p>Spacing [meters]: <input type="number" value="{{ant_meters}}" step="0.0001" name="ant_spacing"/></p>
 
 
 	<input type="checkbox" name="en_doa" value="on" {{!'checked="checked"' if en_doa >= 1 else ""}}>Enable DOA<br>

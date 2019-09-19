@@ -21,6 +21,7 @@
 import sys
 import os
 import time
+import math
 import pyqtgraph as pg
 import pyqtgraph.exporters
 import numpy as np
@@ -307,6 +308,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.checkBox_en_spectrum.setChecked(False)
         self.checkBox_en_DOA.setChecked(False)
 
+    def calculate_spacing(self):
+        ant_arrangement_index = int(form.comboBox_antenna_alignment.currentIndex())
+        ant_meters = form.doubleSpinBox_DOA_d.value()
+        freq = form.doubleSpinBox_center_freq.value()
+        wave_length = (299.79/freq)
+        if ant_arrangement_index == 0: #0 For ULA
+            ant_spacing = (ant_meters/wave_length)
+
+        elif ant_arrangement_index == 1: #1 For UCA
+            ant_spacing = (((ant_meters/wave_length)*wave_length)/math.sqrt(2))
+
+        return(ant_spacing)
 
     def tab_changed(self):
         tab_index = self.tabWidget.currentIndex()
@@ -445,8 +458,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.module_signal_processor.en_DOA_FB_avg = False
 
-        self.module_signal_processor.DOA_inter_elem_space = self.doubleSpinBox_DOA_d.value()
+        #self.module_signal_processor.DOA_inter_elem_space = self.doubleSpinBox_DOA_d.value()
+        self.module_signal_processor.DOA_inter_elem_space = calculate_spacing()
         self.module_signal_processor.DOA_ant_alignment = self.comboBox_antenna_alignment.currentText()
+
+        print(str(self.module_signal_processor.DOA_inter_elem_space) + "\n")
 
         if self.module_signal_processor.DOA_ant_alignment == "UCA":
             self.checkBox_en_DOA_FB_avg.setEnabled(False)
@@ -901,9 +917,9 @@ def do_pr():
 
 @get('/doa')
 def doa():
+    calculate_spacing()
     ant_arrangement_index = int(form.comboBox_antenna_alignment.currentIndex())
-    ant_spacing = form.doubleSpinBox_DOA_d.value()
-
+    ant_meters = form.doubleSpinBox_DOA_d.value()
     en_doa = form.checkBox_en_DOA.checkState()
     en_bartlett = form.checkBox_en_DOA_Bartlett.checkState()
     en_capon = form.checkBox_en_DOA_Capon.checkState()
@@ -913,7 +929,8 @@ def doa():
     ip_addr = form.ip_addr
 
     return template ('doa.tpl', {'ant_arrangement_index':ant_arrangement_index,
-				'ant_spacing':ant_spacing,
+#				'ant_spacing':ant_spacing,
+                'ant_meters' :ant_meters,
 				'en_doa':en_doa,
 				'en_bartlett':en_bartlett,
 				'en_capon':en_capon,
