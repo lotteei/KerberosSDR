@@ -239,6 +239,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.doubleSpinBox_DOA_d.valueChanged.connect(self.set_DOA_params)
         self.spinBox_DOA_sample_size.valueChanged.connect(self.set_DOA_params)
+        
+        self.doubleSpinBox_center_freq.valueChanged.connect(self.set_DOA_params)
 
         self.spinBox_td_filter_dimension.valueChanged.connect(self.set_PR_params)
         self.doubleSpinBox_cc_det_max_range.valueChanged.connect(self.set_PR_params)
@@ -309,17 +311,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.checkBox_en_DOA.setChecked(False)
 
     def calculate_spacing(self):
-        ant_arrangement_index = int(form.comboBox_antenna_alignment.currentIndex())
+        ant_arrangement_index = form.comboBox_antenna_alignment.currentText()
         ant_meters = form.doubleSpinBox_DOA_d.value()
         freq = form.doubleSpinBox_center_freq.value()
         wave_length = (299.79/freq)
-        if ant_arrangement_index == 0: #0 For ULA
+        if ant_arrangement_index == "ULA":
             ant_spacing = (ant_meters/wave_length)
 
-        elif ant_arrangement_index == 1: #1 For UCA
+        elif ant_arrangement_index == "UCA":
             ant_spacing = (((ant_meters/wave_length)*wave_length)/math.sqrt(2))
 
-        return(ant_spacing)
+        return ant_spacing
 
     def tab_changed(self):
         tab_index = self.tabWidget.currentIndex()
@@ -357,13 +359,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             gain_index = self.comboBox_gain.currentIndex()
             self.module_receiver.receiver_gain = 10*float(self.comboBox_gain.currentText())
             form.comboBox_gain_2.setCurrentIndex(int(gain_index))
-            form.comboBox_gain_2.setDisabled(True)
+            form.comboBox_gain_2.setEnabled(False)
             self.module_receiver.receiver_gain_2 = 10*float(self.comboBox_gain.currentText())
             form.comboBox_gain_3.setCurrentIndex(int(gain_index))
-            form.comboBox_gain_3.setDisabled(True)
+            form.comboBox_gain_3.setEnabled(False)
             self.module_receiver.receiver_gain_3 = 10*float(self.comboBox_gain.currentText())
             form.comboBox_gain_4.setCurrentIndex(int(gain_index))
-            form.comboBox_gain_4.setDisabled(True)
+            form.comboBox_gain_4.setEnabled(False)
             self.module_receiver.receiver_gain_4 = 10*float(self.comboBox_gain.currentText())
         else:
             gain[0] = 10*float(self.comboBox_gain.currentText())
@@ -371,11 +373,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             gain[2] = 10*float(self.comboBox_gain_3.currentText())
             gain[3] = 10*float(self.comboBox_gain_4.currentText())
             self.module_receiver.receiver_gain = 10*float(self.comboBox_gain.currentText())
-            form.comboBox_gain_2.setDisabled(False)
+            form.comboBox_gain_2.setEnabled(True)
             self.module_receiver.receiver_gain_2 = 10*float(self.comboBox_gain_2.currentText())
-            form.comboBox_gain_3.setDisabled(False)
+            form.comboBox_gain_3.setEnabled(True)
             self.module_receiver.receiver_gain_3 = 10*float(self.comboBox_gain_3.currentText())
-            form.comboBox_gain_4.setDisabled(False)
+            form.comboBox_gain_4.setEnabled(True)
             self.module_receiver.receiver_gain_4 = 10*float(self.comboBox_gain_4.currentText())
 
         self.module_receiver.fs = float(self.comboBox_sampling_freq.currentText())*10**6 #self.doubleSpinBox_sampling_freq.value()*10**6
@@ -394,10 +396,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_iq_preprocessing_params(self):
         """
             Update IQ preprocessing parameters
-
             Callback function of:
                 -
-
         """
         # Set DC compensations
         if self.checkBox_en_dc_compensation.checkState():
@@ -421,10 +421,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_DOA_params(self):
         """
             Update DOA processing parameters
-
             Callback function of:
                 -
-
         """
         #  Set DOA processing option
         if self.checkBox_en_DOA.checkState():
@@ -459,7 +457,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.module_signal_processor.en_DOA_FB_avg = False
 
         #self.module_signal_processor.DOA_inter_elem_space = self.doubleSpinBox_DOA_d.value()
-        self.module_signal_processor.DOA_inter_elem_space = calculate_spacing()
+        self.module_signal_processor.DOA_inter_elem_space = self.calculate_spacing()
         self.module_signal_processor.DOA_ant_alignment = self.comboBox_antenna_alignment.currentText()
 
         print(str(self.module_signal_processor.DOA_inter_elem_space) + "\n")
@@ -759,7 +757,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def RD_plot(self):
         """
         Event type: Surveillance processor module has calculated the new range-Doppler matrix
-
         callback description:
         ------------------
             Plot the previously obtained range-Doppler matrix
@@ -917,7 +914,6 @@ def do_pr():
 
 @get('/doa')
 def doa():
-    calculate_spacing()
     ant_arrangement_index = int(form.comboBox_antenna_alignment.currentIndex())
     ant_meters = form.doubleSpinBox_DOA_d.value()
     en_doa = form.checkBox_en_DOA.checkState()
