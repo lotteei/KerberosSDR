@@ -311,15 +311,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.checkBox_en_DOA.setChecked(False)
 
     def calculate_spacing(self):
-        ant_arrangement_index = form.comboBox_antenna_alignment.currentText()
-        ant_meters = form.doubleSpinBox_DOA_d.value()
-        freq = form.doubleSpinBox_center_freq.value()
+        ant_arrangement_index = self.comboBox_antenna_alignment.currentText()
+        ant_meters = self.doubleSpinBox_DOA_d.value()
+        freq = self.doubleSpinBox_center_freq.value()
         wave_length = (299.79/freq)
         if ant_arrangement_index == "ULA":
             ant_spacing = (ant_meters/wave_length)
 
         elif ant_arrangement_index == "UCA":
-            ant_spacing = (((ant_meters/wave_length)*wave_length)/math.sqrt(2))
+            ant_spacing = ((ant_meters/wave_length)/math.sqrt(2))
 
         return ant_spacing
 
