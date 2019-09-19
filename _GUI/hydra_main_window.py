@@ -460,7 +460,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.module_signal_processor.DOA_inter_elem_space = self.calculate_spacing()
         self.module_signal_processor.DOA_ant_alignment = self.comboBox_antenna_alignment.currentText()
 
-        print(str(self.module_signal_processor.DOA_inter_elem_space) + "\n")
+        #print(str(self.module_signal_processor.DOA_inter_elem_space) + "\n")
 
         if self.module_signal_processor.DOA_ant_alignment == "UCA":
             self.checkBox_en_DOA_FB_avg.setEnabled(False)
