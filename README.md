@@ -1,3 +1,5 @@
+Don't use the "dev" branch, it usually has untested code.
+
 <h4>This fork adds a few GUI and Web UI convenience features:</h4>
 
 * Selecting “Uniform Gain” will allow you to set the same gain value for all four receivers.
