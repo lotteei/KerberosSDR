@@ -1,32 +1,30 @@
-<style>
-    body {
-      background-color: #f7f5f5 !important;
-    }
-    *{
-        font-size:16px;
-    }
-    h2{
-        font-size:20px;
-    }
-    a{
-      font-size: 20px;
-    }
-    input[type="checkbox"]{
-      width:20px;
-      height:20px;
-      background:white;
-      border-radius:5px;
-      border:2px solid #555;
-      vertical-align: -25%;
-    }
-    input[type="submit"]{
-        background-color: #555555;
-        color: white;
-        font-size:18px;
-    }
-    select{
-      background-color: #555555;
-      color: white;
-      font-size:18px;
-    }
-</style>
+body {
+  background-color: #f7f5f5 !important;
+}
+*{
+    font-size:16px;
+}
+h2{
+    font-size:20px;
+}
+a{
+  font-size: 20px;
+}
+input[type="checkbox"]{
+  width:20px;
+  height:20px;
+  background:white;
+  border-radius:5px;
+  border:2px solid #555;
+  vertical-align: -25%;
+}
+input[type="submit"]{
+    background-color: #555555;
+    color: white;
+    font-size:18px;
+}
+select{
+  background-color: #555555;
+  color: white;
+  font-size:18px;
+}
