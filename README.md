@@ -1,15 +1,16 @@
-This fork adds a few GUI and Web UI convenience features:
-•	Selecting “Uniform Gain” will allow you to set the same gain value for all four receivers.
-•	The antenna spacing value (s, fraction of wavelength) is automatically calculated based on frequency and a user set antenna spacing (s’, meters). For circular arrays, just use the spacing between each antenna, the program will calculate the radius for you.
-•	I’ve added a button to the Web UI to enable the sync display and the noise source in one click. I also increased the size of the buttons to be more mobile friendly. If the noise source or the sync display (or both) is enabled the button will disable both. This should make calibration less cumbersome on mobile devices.
+<h5>This fork adds a few GUI and Web UI convenience features:<h5>
+
+* Selecting “Uniform Gain” will allow you to set the same gain value for all four receivers.
+* The antenna spacing value (s, fraction of wavelength) is automatically calculated based on frequency and a user set antenna spacing (s’, meters). For circular arrays, just use the spacing between each antenna, the program will calculate the radius for you.
+* I’ve added a button to the Web UI to enable the sync display and the noise source in one click. I also increased the size of the buttons to be more mobile friendly. If the noise source or the sync display (or both) is enabled the button will disable both. This should make calibration less cumbersome on mobile devices.
 
 
 
-Please see the software tutorial at www.rtl-sdr.com/ksdr
+<h4>Please see the software tutorial at www.rtl-sdr.com/ksdr<h4>
 
-KerberosSDR Demo Software
+<h3>KerberosSDR Demo Software<h3>
 
-Installing the software
+<h4>Installing the software<h4>
 Install Dependencies via apt:
 
 sudo apt update
