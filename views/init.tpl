@@ -1,6 +1,6 @@
 <html>
 <meta http-equiv="Cache-control" content="no-cache" charset="utf-8">
-
+<link rel="stylesheet" type="text/css" href="static/style.css">
 <script>
 function check_check_box() {
 var elms = document.getElementsByClassName('disable')
@@ -17,11 +17,11 @@ var elms = document.getElementsByClassName('disable')
 }
 </script>
 
-<p><font size = "4"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></font></p>
+<p class="header"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></p>
 <hr>
 
 <div>
-<b>Receiver Configuration</b>
+<h2>Receiver Configuration</h2>
 <form action="/init" method="post">
         <input type="hidden" name="rcv_params" value="rcv_params" />
 	<p>Center Frequency [MHz]: <input type="number" value="{{center_freq}}" step="0.0001" name="center_freq"/></p>
@@ -177,7 +177,7 @@ var elms = document.getElementsByClassName('disable')
 	</select></p>
 
 
-	<p><input value="Update Receiver Paramaters" type="submit" /></p>
+	<p><input value="Update Receiver Paramaters" type="submit" style="height:40px;"/></p>
 
 </form>
 <hr>
@@ -191,33 +191,33 @@ var elms = document.getElementsByClassName('disable')
 	<p>FIR Tap Size: <input type="number" value="{{fir_size}}" step="1" name="fir_size"/></p>
 	<p>Decimation: <input type="number" value="{{decimation}}" step="1" name="decimation"/></p>
 
-        <p><input value="Update IQ Paramaters" type="submit" /></p>
+        <p><input value="Update IQ Paramaters" type="submit" style="height:40px;"/></p>
 </form>
 <hr>
 
 <form action="/init" method="post">
         <input type="hidden" name="start_spec" value="start_spec" />
-	<input value="Start Spectrum Display" type="submit" />
+	<input value="Start Spectrum Display" type="submit" style="height:40px;"/>
 </form>
 <form action="/init" method="post">
         <input type="hidden" name="stop_spec" value="stop_spec" />
-	<input value="Stop Spectrum Display" type="submit" />
+	<input value="Stop Spectrum Display" type="submit" style="height:40px;"/>
 </form>
 <hr>
 
 <form action="/init" method="post">
         <input type="hidden" name="start" value="start" />
-	<p><input value="Start Processing" type="submit" /></p>
+	<p><input value="Start Processing" type="submit" style="height:40px;"/></p>
 </form>
 <form action="/init" method="post">
         <input type="hidden" name="stop" value="stop" />
-	<p><input value="Stop Processing" type="submit" /></p>
+	<p><input value="Stop Processing" type="submit" style="height:40px;"/></p>
 </form>
 <iframe width=100% height=5% src="http://{{ip_addr}}:8080/stats"></iframe>
 <hr>
 <form action="/init" method="post">
         <input type="hidden" name="reboot" value="reboot" />
-	<p><input value="Reboot Software" type="submit" /></p>
+	<p><input value="Reboot Software" type="submit" style="height:40px;"/></p>
 </form>
 <div>
 <!--<script type="text/javascript" src="/static/refresh_image.js" charset="utf-8" style="float:right"></script>

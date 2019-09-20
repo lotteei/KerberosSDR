@@ -239,7 +239,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.doubleSpinBox_DOA_d.valueChanged.connect(self.set_DOA_params)
         self.spinBox_DOA_sample_size.valueChanged.connect(self.set_DOA_params)
-        
+
         self.doubleSpinBox_center_freq.valueChanged.connect(self.set_DOA_params)
 
         self.spinBox_td_filter_dimension.valueChanged.connect(self.set_PR_params)
@@ -828,6 +828,14 @@ def reboot_program():
     form.DOA_res_fd.close()
     subprocess.call(['./run.sh'])
 
+#@route('/static/:path#.+#', name='static')
+#def static(path):
+    #return static_file(path, root='static')
+
+@route('/static/<filepath:path>', name='static')
+def server_static(filepath):
+    return static_file(filepath, root='./static')
+
 
 @get('/pr')
 def pr():
@@ -983,7 +991,7 @@ def do_sync():
     if (request.POST.get('enable_all_sync') == 'enable_all_sync'):
         current_sync = form.checkBox_en_sync_display.checkState()
         current_noise = form.checkBox_en_noise_source.checkState()
-        if (current_sync == False) and (current_noise == False): 
+        if (current_sync == False) and (current_noise == False):
             form.checkBox_en_sync_display.setChecked(True)
             form.checkBox_en_noise_source.setChecked(True)
         else:
@@ -992,7 +1000,7 @@ def do_sync():
 
         form.switch_noise_source()
         form.set_sync_params()
- 
+
     if (request.POST.get('update_sync') == 'update_sync'):
         en_sync = request.forms.get('en_sync')
         form.checkBox_en_sync_display.setChecked(True if en_sync=="on" else False)
@@ -1109,10 +1117,6 @@ def do_init():
         reboot_program()
 
     return redirect('init')
-
-#@route('/static/:path#.+#', name='static')
-#def static(path):
-#    return static_file(path, root='static')
 
 @get('/stats')
 def stats():
