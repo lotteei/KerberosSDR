@@ -980,6 +980,19 @@ def sync():
 @post('/sync')
 def do_sync():
 
+    if (request.POST.get('enable_all_sync') == 'enable_all_sync'):
+        current_sync = form.checkBox_en_sync_display.checkState()
+        current_noise = form.checkBox_en_noise_source.checkState()
+        if (current_sync == False) and (current_noise == False): 
+            form.checkBox_en_sync_display.setChecked(True)
+            form.checkBox_en_noise_source.setChecked(True)
+        else:
+            form.checkBox_en_sync_display.setChecked(False)
+            form.checkBox_en_noise_source.setChecked(False)
+
+        form.switch_noise_source()
+        form.set_sync_params()
+ 
     if (request.POST.get('update_sync') == 'update_sync'):
         en_sync = request.forms.get('en_sync')
         form.checkBox_en_sync_display.setChecked(True if en_sync=="on" else False)
