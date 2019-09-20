@@ -5,6 +5,11 @@
 
 <b>Receiver Configuration</b>
 <form action="/sync" method="post">
+        <input type="hidden" name="enable_all_sync" value="enable_all_sync" />
+    <p><input type="submit" value="{{!"Disable" if en_sync >= 1 and en_noise >= 1 else "Enable"}} Noise Source & Sync Display" style="height:50px;"></p>
+</form>
+
+<form action="/sync" method="post">
         <input type="hidden" name="update_sync" value="update_sync" />
 	
 	<input type="checkbox" name="en_sync" value="on" {{!'checked="checked"' if en_sync >= 1 else ""}}>Enable Sync Display<br>
@@ -21,12 +26,12 @@
 
 <form action="/sync" method="post">
         <input type="hidden" name="samp_sync" value="samp_sync" />
-	<p><input value="Sample Sync" type="submit" /></p>
+	<p><input value="Sample Sync" type="submit" style="height:50px;"/></p>
 </form>
 
 <form action="/sync" method="post">
         <input type="hidden" name="cal_iq" value="cal_iq" />
-	<p><input value="Calibrate IQ" type="submit" /></p>
+	<p><input value="Calibrate IQ" type="submit" style="height:50px;"/></p>
 </form>
 <hr>
 <iframe width=100% height=5% src="http://{{ip_addr}}:8080/stats"></iframe>
