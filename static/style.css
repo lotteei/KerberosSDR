@@ -1,5 +1,5 @@
 body {
-  background-color: #f7f5f5 !important;
+  background-color: #f7f5f5;
 }
 *{
     font-size:16px;
@@ -22,9 +22,11 @@ input[type="submit"]{
     background-color: #555555;
     color: white;
     font-size:18px;
+    border: 2px solid #355555;
 }
 select{
   background-color: #555555;
   color: white;
   font-size:18px;
+  border: 2px solid #355555;
 }
