@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta http-equiv="Cache-control" content="no-cache" charset="utf-8">
     <link rel="stylesheet" type="text/css" href="static/style.css">
   </head>
@@ -7,7 +8,7 @@
     <p class="header"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></p>
     <hr>
 
-    <p><font size = "4"><a href="http://{{ip_addr}}:8081/compass.html">Compass</a></font></p>
+    <p><a href="http://{{ip_addr}}:8081/compass.html">Compass</a></p>
     <hr>
 
     <h2>Antenna Configuration</h2>
@@ -23,14 +24,16 @@
     	<!-- <p>Spacing [lambda]: <input type="number" value="{ {ant_spacing} }" step="0.0001" name="ant_spacing"/></p> -->
       <p>Spacing [meters]: <input type="number" value="{{ant_meters}}" step="0.0001" name="ant_spacing"/></p>
 
+      <div id="checkox_wrapper">
+      <div id="doa_checkboxes">
+      	<input type="checkbox" name="en_doa" value="on" {{!'checked="checked"' if en_doa >= 1 else ""}}>Enable DOA<br>
 
-    	<input type="checkbox" name="en_doa" value="on" {{!'checked="checked"' if en_doa >= 1 else ""}}>Enable DOA<br>
-
-    	<input type="checkbox" name="en_bartlett" value="on" {{!'checked="checked"' if en_bartlett >= 1 else ""}}>Bartlett<br>
-    	<input type="checkbox" name="en_capon" value="on" {{!'checked="checked"' if en_capon >= 1 else ""}}>Capon<br>
-    	<input type="checkbox" name="en_MEM" value="on" {{!'checked="checked"' if en_MEM >= 1 else ""}}>MEM<br>
-    	<input type="checkbox" name="en_MUSIC" value="on" {{!'checked="checked"' if en_MUSIC >= 1 else ""}}>MUSIC<br>
-
+      	<input class="doa_check" type="checkbox" name="en_bartlett" value="on" {{!'checked="checked"' if en_bartlett >= 1 else ""}}>Bartlett<br>
+      	<input class="doa_check" type="checkbox" name="en_capon" value="on" {{!'checked="checked"' if en_capon >= 1 else ""}}>Capon<br>
+      	<input class="doa_check" type="checkbox" name="en_MEM" value="on" {{!'checked="checked"' if en_MEM >= 1 else ""}}>MEM<br>
+      	<input class="doa_check" type="checkbox" name="en_MUSIC" value="on" {{!'checked="checked"' if en_MUSIC >= 1 else ""}}>MUSIC<br>
+      </div>
+      </div>
     	<br>
 
     	<input type="checkbox" name="en_fbavg" value="on" {{!'checked="checked"' if en_fbavg >= 1 else ""}}>FB Average (Do not use with UCA)<br>

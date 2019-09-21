@@ -1,4 +1,5 @@
 <html>
+<meta content="width=device-width, initial-scale=1" name="viewport" />
 <meta http-equiv="Cache-control" content="no-cache" charset="utf-8">
 <link rel="stylesheet" type="text/css" href="static/style.css">
 <p class="header"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></p>
@@ -7,7 +8,7 @@
 <h2>Receiver Configuration</h2>
 <form action="/sync" method="post">
         <input type="hidden" name="enable_all_sync" value="enable_all_sync" />
-    <p><input type="submit" value="{{!"Disable" if en_sync >= 1 and en_noise >= 1 else "Enable"}} Noise Source & Sync Display" /></p>
+    <p><input id="set_cal_all" type="submit" value="{{!"Disable" if en_sync >= 1 and en_noise >= 1 else "Enable"}} Noise Source & Sync Display" /></p>
 </form>
 
 <form action="/sync" method="post">
@@ -22,17 +23,17 @@
 
 <form action="/sync" method="post">
         <input type="hidden" name="del_hist" value="del_hist" />
-	<p><input value="Delete History" type="submit" /></p>
+	<p class="cal_buttons"><input value="Delete History" type="submit" /></p>
 </form>
 
 <form action="/sync" method="post">
         <input type="hidden" name="samp_sync" value="samp_sync" />
-	<p><input value="Sample Sync" type="submit" /></p>
+	<p class="cal_buttons"><input value="Sample Sync" type="submit" /></p>
 </form>
 
 <form action="/sync" method="post">
         <input type="hidden" name="cal_iq" value="cal_iq" />
-	<p><input value="Calibrate IQ" type="submit" /></p>
+	<p class="cal_buttons"><input value="Calibrate IQ" type="submit" /></p>
 </form>
 <hr>
 <iframe width=100% height=5% src="http://{{ip_addr}}:8080/stats"></iframe>

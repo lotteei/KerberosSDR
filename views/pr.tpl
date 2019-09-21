@@ -1,4 +1,5 @@
 <html>
+<meta content="width=device-width, initial-scale=1" name="viewport" />
 <meta http-equiv="Cache-control" content="no-cache" charset="utf-8">
 <link rel="stylesheet" type="text/css" href="static/style.css">
 <p class="header"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></p>
