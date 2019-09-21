@@ -1,8 +1,10 @@
 <html>
+<meta content="width=device-width, initial-scale=1" name="viewport" />
 <meta http-equiv="Cache-control" content="no-cache" charset="utf-8">
-<p><font size = "4"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></font></p>
+<link rel="stylesheet" type="text/css" href="static/style.css">
+<p class="header"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></p>
 <hr>
-<b>Passive Radar</b>
+<h2>Passive Radar</h2>
 <form action="/pr" method="post">
 
 	<p><b>Channel Configuration</b></p>
@@ -12,7 +14,7 @@
 	<p>Suveillance Channel [0-3]: <input type="number" value="{{surv_ch}}" step="1" name="surv_ch"/></p>
 
 	<p><b>Time domain clutter cancellation</b></p>
- 
+
 	<input type="checkbox" name="en_clutter" value="on" {{!'checked="checked"' if en_clutter >= 1 else ""}}>Enable/Disable<br>
 	<p>Filter Dimension: <input type="number" value="{{filt_dim}}" step="1" name="filt_dim"/></p>
 
