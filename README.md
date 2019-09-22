@@ -1,6 +1,4 @@
-Don't use the "dev" branch, it usually has untested code.
-
-<h4>This fork adds a few GUI and Web UI improvements and convenience features:</h4>
+<h4>Change Log</h4>
 
 * Selecting “Uniform Gain” will allow you to set the same gain value for all four receivers.
 * The antenna spacing value (s, fraction of wavelength) is automatically calculated based on frequency and a user set antenna spacing (s’, meters). For circular arrays, just use the spacing between each antenna, the program will calculate the radius for you.
