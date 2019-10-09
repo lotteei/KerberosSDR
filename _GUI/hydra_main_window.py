@@ -21,6 +21,7 @@
 import sys
 import os
 import time
+import math
 import pyqtgraph as pg
 import pyqtgraph.exporters
 import numpy as np
@@ -75,7 +76,7 @@ from hydra_signal_processor import SignalProcessor
 from pyargus import directionEstimation as de
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    
+
     def __init__ (self,parent = None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
@@ -86,13 +87,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tabWidget.setCurrentIndex(0)
 
         # Set pyqtgraph to use white background, black foreground
-        pg.setConfigOption('background', 'w')
-        pg.setConfigOption('foreground', 'k')
+        pg.setConfigOption('background', (61, 61, 61))
+        pg.setConfigOption('foreground', 'w')
         pg.setConfigOption('imageAxisOrder', 'row-major')
         #pg.setConfigOption('useOpenGL', True)
         #pg.setConfigOption('useWeave', True)
-                
-        # Spectrum display                    
+
+        # Spectrum display
 
         self.win_spectrum = pg.GraphicsWindow(title="Quad Channel Spectrum")
 
@@ -109,10 +110,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x = np.arange(1000)
         y = np.random.normal(size=(4,1000))
 
-        self.spectrum_ch1_curve = self.plotWidget_spectrum_ch1.plot(x, y[0], clear=True, pen='b')
+        self.spectrum_ch1_curve = self.plotWidget_spectrum_ch1.plot(x, y[0], clear=True, pen=(255, 199, 15))
         self.spectrum_ch2_curve = self.plotWidget_spectrum_ch2.plot(x, y[1], clear=True, pen='r')
         self.spectrum_ch3_curve = self.plotWidget_spectrum_ch3.plot(x, y[2], clear=True, pen='g')
-        self.spectrum_ch4_curve = self.plotWidget_spectrum_ch4.plot(x, y[3], clear=True, pen='c')
+        self.spectrum_ch4_curve = self.plotWidget_spectrum_ch4.plot(x, y[3], clear=True, pen=(9, 237, 237))
 
 
         self.plotWidget_spectrum_ch1.setLabel("bottom", "Frequency [MHz]")
@@ -122,8 +123,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plotWidget_spectrum_ch3.setLabel("bottom", "Frequency [MHz]")
         self.plotWidget_spectrum_ch3.setLabel("left", "Amplitude [dBm]")
         self.plotWidget_spectrum_ch4.setLabel("bottom", "Frequency [MHz]")
-        self.plotWidget_spectrum_ch4.setLabel("left", "Amplitude [dBm]")        
-        
+        self.plotWidget_spectrum_ch4.setLabel("left", "Amplitude [dBm]")
+
         #---> Sync display <---
         # --> Delay
 
@@ -144,7 +145,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         y = np.random.normal(size=(4,1000))
 
         #---> DOA results display <---
-        
+
         self.win_DOA = pg.GraphicsWindow(title="DOA Plot")
         #Set up image exporter for web display
         self.export_DOA = pg.exporters.ImageExporter(self.win_DOA.scene())
@@ -155,7 +156,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plotWidget_DOA.showGrid(x=True, alpha=0.25)
         self.gridLayout_DOA.addWidget(self.win_DOA, 1, 1, 1, 1)
 
-        self.DOA_res_fd = open("/ram/DOA_value.html","w") # DOA estimation result file descriptor        
+        self.DOA_res_fd = open("/ram/DOA_value.html","w") # DOA estimation result file descriptor
 
         # Junk data to just init plot legends
         x = np.arange(1000)
@@ -163,11 +164,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.plotWidget_DOA.addLegend()
 
-        self.plotWidget_DOA.plot(x, y[0], pen=pg.mkPen('b', width=2), name="Bartlett")
+        self.plotWidget_DOA.plot(x, y[0], pen=pg.mkPen((255, 199, 15), width=2), name="Bartlett")
         self.plotWidget_DOA.plot(x, y[1], pen=pg.mkPen('g', width=2), name="Capon")
         self.plotWidget_DOA.plot(x, y[2], pen=pg.mkPen('r', width=2), name="MEM")
-        self.plotWidget_DOA.plot(x, y[3], pen=pg.mkPen('c', width=2), name="MUSIC")
-       
+        self.plotWidget_DOA.plot(x, y[3], pen=pg.mkPen((9, 237, 237), width=2), name="MUSIC")
+
         #---> Passive radar results display <---
 
         self.win_PR = pg.GraphicsWindow(title="Passive Radar")
@@ -200,24 +201,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         #self.img_PR.setPredefinedGradient('spectrum')
 
-        self.gridLayout_RD.addWidget(self.win_PR, 1, 1, 1, 1)              
+        self.gridLayout_RD.addWidget(self.win_PR, 1, 1, 1, 1)
 
-        # Connect pushbutton signals        
-        self.pushButton_close.clicked.connect(self.pb_close_clicked)        
+        # Connect pushbutton signals
+        self.pushButton_close.clicked.connect(self.pb_close_clicked)
         self.pushButton_proc_control.clicked.connect(self.pb_proc_control_clicked)
         self.pushButton_sync.clicked.connect(self.pb_sync_clicked)
         self.pushButton_iq_calib.clicked.connect(self.pb_calibrate_iq_clicked)
         self.pushButton_del_sync_history.clicked.connect(self.pb_del_sync_history_clicked)
-        self.pushButton_DOA_cal_90.clicked.connect(self.pb_calibrate_DOA_90_clicked)        
+        self.pushButton_DOA_cal_90.clicked.connect(self.pb_calibrate_DOA_90_clicked)
         self.pushButton_set_receiver_config.clicked.connect(self.pb_rec_reconfig_clicked)
         self.stream_state = False
-        
+
         # Status and configuration tab control
         self.tabWidget.currentChanged.connect(self.tab_changed)
-        
+
         # Connect checkbox signals
-        self.checkBox_en_sync_display.stateChanged.connect(self.set_sync_params)        
-        self.checkBox_en_spectrum.stateChanged.connect(self.set_spectrum_params)                
+        self.checkBox_en_uniform_gain.stateChanged.connect(self.pb_rec_reconfig_clicked)
+        self.checkBox_en_sync_display.stateChanged.connect(self.set_sync_params)
+        self.checkBox_en_spectrum.stateChanged.connect(self.set_spectrum_params)
         self.checkBox_en_DOA.stateChanged.connect(self.set_DOA_params)
         self.checkBox_en_DOA_Bartlett.stateChanged.connect(self.set_DOA_params)
         self.checkBox_en_DOA_Capon.stateChanged.connect(self.set_DOA_params)
@@ -229,15 +231,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.checkBox_en_td_filter.stateChanged.connect(self.set_PR_params)
         self.checkBox_en_autodet.stateChanged.connect(self.set_PR_params)
         self.checkBox_en_noise_source.stateChanged.connect(self.switch_noise_source)
-        
+
         # Connect spinbox signals
         self.doubleSpinBox_filterbw.valueChanged.connect(self.set_iq_preprocessing_params)
         self.spinBox_fir_tap_size.valueChanged.connect(self.set_iq_preprocessing_params)
         self.spinBox_decimation.valueChanged.connect(self.set_iq_preprocessing_params)
-        
+
         self.doubleSpinBox_DOA_d.valueChanged.connect(self.set_DOA_params)
         self.spinBox_DOA_sample_size.valueChanged.connect(self.set_DOA_params)
-                
+
+        self.doubleSpinBox_center_freq.valueChanged.connect(self.set_DOA_params)
+
         self.spinBox_td_filter_dimension.valueChanged.connect(self.set_PR_params)
         self.doubleSpinBox_cc_det_max_range.valueChanged.connect(self.set_PR_params)
         self.doubleSpinBox_cc_det_max_Doppler.valueChanged.connect(self.set_PR_params)
@@ -248,17 +252,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.doubleSpinBox_cfar_threshold.valueChanged.connect(self.set_PR_params)
 
         self.spinBox_resync_time.valueChanged.connect(self.set_resync_time)
-        
+
         # Connect combobox signals
         self.comboBox_antenna_alignment.currentIndexChanged.connect(self.set_DOA_params)
-        self.comboBox_cc_det_windowing.currentIndexChanged.connect(self.set_windowing_mode)        
+        self.comboBox_cc_det_windowing.currentIndexChanged.connect(self.set_windowing_mode)
 
-        # Instantiate and configura Hydra modules                              
+        # Instantiate and configura Hydra modules
         self.module_receiver = ReceiverRTLSDR()
 
         self.module_receiver.block_size = int(sys.argv[1]) * 1024
 
-        self.module_signal_processor = SignalProcessor(module_receiver=self.module_receiver)        
+        self.module_signal_processor = SignalProcessor(module_receiver=self.module_receiver)
 
         self.module_signal_processor.signal_overdrive.connect(self.power_level_update)
         self.module_signal_processor.signal_period.connect(self.period_time_update)
@@ -266,10 +270,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.module_signal_processor.signal_sync_ready.connect(self.delay_plot)
         self.module_signal_processor.signal_DOA_ready.connect(self.DOA_plot)
         self.module_signal_processor.signal_PR_ready.connect(self.RD_plot)
-        # -> Set default confiration for the signal processing module        
-        self.set_spectrum_params()        
-        self.set_sync_params()        
-        self.set_DOA_params()  
+        # -> Set default confiration for the signal processing module
+        self.set_spectrum_params()
+        self.set_sync_params()
+        self.set_DOA_params()
         self.set_windowing_mode()
 
 
@@ -281,35 +285,47 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 
-        #self.spectrum_plot()        
+        #self.spectrum_plot()
         #self.delay_plot()
         #self.DOA_plot()
         #self.RD_plot()
 
-        
+
         # Set default confiuration for the GUI components
         self.set_default_configuration()
-        
+
         self.ip_addr = sys.argv[2]
         threading.Thread(target=run, kwargs=dict(host=self.ip_addr, port=8080, quiet=True, debug=False, server='paste')).start()
 
     #-----------------------------------------------------------------
-    # 
+    #
     #-----------------------------------------------------------------
 
 
 
 
     def set_default_configuration(self):
-        
+
         self.power_level_update(0)
-        self.checkBox_en_spectrum.setChecked(False)           
+        self.checkBox_en_spectrum.setChecked(False)
         self.checkBox_en_DOA.setChecked(False)
 
-        
+    def calculate_spacing(self):
+        ant_arrangement_index = self.comboBox_antenna_alignment.currentText()
+        ant_meters = self.doubleSpinBox_DOA_d.value()
+        freq = self.doubleSpinBox_center_freq.value()
+        wave_length = (299.79/freq)
+        if ant_arrangement_index == "ULA":
+            ant_spacing = (ant_meters/wave_length)
+
+        elif ant_arrangement_index == "UCA":
+            ant_spacing = ((ant_meters/wave_length)/math.sqrt(2))
+
+        return ant_spacing
+
     def tab_changed(self):
         tab_index = self.tabWidget.currentIndex()
-                
+
         if tab_index == 0:  # Spectrum tab
             self.stackedWidget_config.setCurrentIndex(0)
         elif tab_index == 1:  # Sync tab
@@ -318,7 +334,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.stackedWidget_config.setCurrentIndex(2)
         elif tab_index == 3:  # PR tab
             self.stackedWidget_config.setCurrentIndex(3)
-    
+
     def set_sync_params(self):
         if self.checkBox_en_sync_display.checkState():
             self.module_signal_processor.en_sync = True
@@ -329,22 +345,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.module_signal_processor.en_spectrum = True
         else:
             self.module_signal_processor.en_spectrum = False
-    
-        
+
+
     def pb_rec_reconfig_clicked(self):
         center_freq = self.doubleSpinBox_center_freq.value() *10**6
         sample_rate = float(self.comboBox_sampling_freq.currentText()) *10**6 #self.doubleSpinBox_sampling_freq.value()*10**6
         gain = [0,0,0,0]
-        gain[0] = 10*float(self.comboBox_gain.currentText())
-        gain[1] = 10*float(self.comboBox_gain_2.currentText())
-        gain[2] = 10*float(self.comboBox_gain_3.currentText())
-        gain[3] = 10*float(self.comboBox_gain_4.currentText())
-        
-        self.module_receiver.receiver_gain = 10*float(self.comboBox_gain.currentText())
-        self.module_receiver.receiver_gain_2 = 10*float(self.comboBox_gain_2.currentText())
-        self.module_receiver.receiver_gain_3 = 10*float(self.comboBox_gain_3.currentText())
-        self.module_receiver.receiver_gain_4 = 10*float(self.comboBox_gain_4.currentText())
-        
+        if self.checkBox_en_uniform_gain.checkState():
+            gain[0] = 10*float(self.comboBox_gain.currentText())
+            gain[1] = 10*float(self.comboBox_gain.currentText())
+            gain[2] = 10*float(self.comboBox_gain.currentText())
+            gain[3] = 10*float(self.comboBox_gain.currentText())
+            gain_index = self.comboBox_gain.currentIndex()
+            self.module_receiver.receiver_gain = 10*float(self.comboBox_gain.currentText())
+            form.comboBox_gain_2.setCurrentIndex(int(gain_index))
+            form.comboBox_gain_2.setEnabled(False)
+            self.module_receiver.receiver_gain_2 = 10*float(self.comboBox_gain.currentText())
+            form.comboBox_gain_3.setCurrentIndex(int(gain_index))
+            form.comboBox_gain_3.setEnabled(False)
+            self.module_receiver.receiver_gain_3 = 10*float(self.comboBox_gain.currentText())
+            form.comboBox_gain_4.setCurrentIndex(int(gain_index))
+            form.comboBox_gain_4.setEnabled(False)
+            self.module_receiver.receiver_gain_4 = 10*float(self.comboBox_gain.currentText())
+        else:
+            gain[0] = 10*float(self.comboBox_gain.currentText())
+            gain[1] = 10*float(self.comboBox_gain_2.currentText())
+            gain[2] = 10*float(self.comboBox_gain_3.currentText())
+            gain[3] = 10*float(self.comboBox_gain_4.currentText())
+            self.module_receiver.receiver_gain = 10*float(self.comboBox_gain.currentText())
+            form.comboBox_gain_2.setEnabled(True)
+            self.module_receiver.receiver_gain_2 = 10*float(self.comboBox_gain_2.currentText())
+            form.comboBox_gain_3.setEnabled(True)
+            self.module_receiver.receiver_gain_3 = 10*float(self.comboBox_gain_3.currentText())
+            form.comboBox_gain_4.setEnabled(True)
+            self.module_receiver.receiver_gain_4 = 10*float(self.comboBox_gain_4.currentText())
+
         self.module_receiver.fs = float(self.comboBox_sampling_freq.currentText())*10**6 #self.doubleSpinBox_sampling_freq.value()*10**6
         self.module_signal_processor.fs = self.module_receiver.fs/self.module_receiver.decimation_ratio
 
@@ -356,27 +391,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.module_signal_processor.noise_checked = True
             self.module_receiver.switch_noise_source(1)
         else:
-            self.module_signal_processor.noise_checked = False 
+            self.module_signal_processor.noise_checked = False
             self.module_receiver.switch_noise_source(0)
     def set_iq_preprocessing_params(self):
         """
             Update IQ preprocessing parameters
-            
             Callback function of:
                 -
-                
-        """        
+        """
         # Set DC compensations
         if self.checkBox_en_dc_compensation.checkState():
             self.module_receiver.en_dc_compensation = True
         else:
             self.module_receiver.en_dc_compensation = False
-        
+
         # Set FIR filter parameters
         tap_size = self.spinBox_fir_tap_size.value()
         bw = self.doubleSpinBox_filterbw.value() * 10**3  # ->[kHz]
         self.module_receiver.set_fir_coeffs(tap_size, bw)
-        
+
         # Set Decimation
         self.module_receiver.decimation_ratio = self.spinBox_decimation.value()
         self.module_signal_processor.fs = self.module_receiver.fs/self.module_receiver.decimation_ratio
@@ -388,32 +421,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_DOA_params(self):
         """
             Update DOA processing parameters
-            
             Callback function of:
                 -
-            
         """
         #  Set DOA processing option
         if self.checkBox_en_DOA.checkState():
             self.module_signal_processor.en_DOA_estimation = True
         else:
             self.module_signal_processor.en_DOA_estimation = False
-            
-            
+
+
         if self.checkBox_en_DOA_Bartlett.checkState():
             self.module_signal_processor.en_DOA_Bartlett = True
         else:
             self.module_signal_processor.en_DOA_Bartlett = False
-            
+
         if self.checkBox_en_DOA_Capon.checkState():
             self.module_signal_processor.en_DOA_Capon = True
         else:
             self.module_signal_processor.en_DOA_Capon = False
-            
+
         if self.checkBox_en_DOA_MEM.checkState():
             self.module_signal_processor.en_DOA_MEM = True
         else:
-            self.module_signal_processor.en_DOA_MEM = False       
+            self.module_signal_processor.en_DOA_MEM = False
 
         if self.checkBox_en_DOA_MUSIC.checkState():
             self.module_signal_processor.en_DOA_MUSIC = True
@@ -423,10 +454,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.checkBox_en_DOA_FB_avg.checkState():
             self.module_signal_processor.en_DOA_FB_avg = True
         else:
-            self.module_signal_processor.en_DOA_FB_avg = False        
-       
-        self.module_signal_processor.DOA_inter_elem_space = self.doubleSpinBox_DOA_d.value()        
+            self.module_signal_processor.en_DOA_FB_avg = False
+
+        #self.module_signal_processor.DOA_inter_elem_space = self.doubleSpinBox_DOA_d.value()
+        self.module_signal_processor.DOA_inter_elem_space = self.calculate_spacing()
         self.module_signal_processor.DOA_ant_alignment = self.comboBox_antenna_alignment.currentText()
+
+        #print(str(self.module_signal_processor.DOA_inter_elem_space) + "\n")
 
         if self.module_signal_processor.DOA_ant_alignment == "UCA":
             self.checkBox_en_DOA_FB_avg.setEnabled(False)
@@ -435,40 +469,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.checkBox_en_DOA_FB_avg.setEnabled(True)
 
         self.module_signal_processor.DOA_sample_size = 2**self.spinBox_DOA_sample_size.value()
-        
-    
-    def set_PR_params(self):        
+
+
+    def set_PR_params(self):
         if self.checkBox_en_passive_radar.checkState():
-            self.module_signal_processor.en_PR_processing = True            
+            self.module_signal_processor.en_PR_processing = True
         else:
             self.module_signal_processor.en_PR_processing = False
-        
+
         if self.checkBox_en_td_filter.checkState():
             self.module_signal_processor.en_td_filtering = True
         else:
             self.module_signal_processor.en_td_filtering = False
-        
+
         if self.checkBox_en_autodet.checkState():
             self.module_signal_processor.en_PR_autodet = True
         else:
             self.module_signal_processor.en_PR_autodet = False
-        
+
         # Set CFAR parameters
         self.module_signal_processor.cfar_win_params=[self.spinBox_cfar_est_win.value(), self.spinBox_cfar_est_win.value(), self.spinBox_cfar_guard_win.value(), self.spinBox_cfar_guard_win.value()]
-                
+
         self.module_signal_processor.cfar_threshold = self.doubleSpinBox_cfar_threshold.value()
-        
+
         # Set Time-domain clutter fitler parameters
         self.module_signal_processor.td_filter_dimension = self.spinBox_td_filter_dimension.value()
-        
+
         # Set Cross-Correlation detector parameters
         self.module_signal_processor.max_range = int(self.doubleSpinBox_cc_det_max_range.value())
         self.module_signal_processor.max_Doppler = int(self.doubleSpinBox_cc_det_max_Doppler.value())
-        
+
         # General channel settings
         self.module_signal_processor.ref_ch_id = self.spinBox_ref_ch_select.value()
         self.module_signal_processor.surv_ch_id = self.spinBox_surv_ch_select.value()
-    
+
     def set_resync_time(self):
         self.module_signal_processor.resync_time = self.spinBox_resync_time.value()
 
@@ -476,42 +510,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def pb_close_clicked(self):
         #self.stop_streaming()
         #self.module_receiver.module_state = "EXIT"
-        self.module_receiver.close()     
+        self.module_receiver.close()
         self.DOA_res_fd.close()
         self.close()
-        
-  
+
+
     def pb_proc_control_clicked(self):
         if self.pushButton_proc_control.text() == "Start processing":
-            self.pushButton_proc_control.setText("Stop processing")   
-            
-           
+            self.pushButton_proc_control.setText("Stop processing")
+
+
             self.module_signal_processor.start()
-            
+
         elif self.pushButton_proc_control.text() == "Stop processing":
             self.pushButton_proc_control.setText("Start processing")
 
             self.module_signal_processor.stop()
-            
+
     def pb_sync_clicked(self):
         #print("[ INFO ] Sync requested")
         self.module_signal_processor.en_sample_offset_sync=True
 
     def pb_calibrate_iq_clicked(self):
-        #print("[ INFO ] IQ calibration requested")        
+        #print("[ INFO ] IQ calibration requested")
         self.module_signal_processor.en_calib_iq=True
     def pb_calibrate_DOA_90_clicked(self):
-        #print("[ INFO ] DOA IQ calibration requested")   
+        #print("[ INFO ] DOA IQ calibration requested")
         self.module_signal_processor.en_calib_DOA_90=True
-        
+
     def pb_del_sync_history_clicked(self):
         self.module_signal_processor.delete_sync_history()
-    
+
     def power_level_update(self, over_drive_flag):
         if over_drive_flag:
             red_text = "<span style=\" font-size:8pt; font-weight:600; color:#ff0000;\" >"
             red_text += "OVERDRIVE"
-            red_text += ("</span>")            
+            red_text += ("</span>")
             self.label_power_level.setText(red_text)
         else:
             green_text = "<span style=\" font-size:8pt; font-weight:600; color:#01df01;\" >"
@@ -562,16 +596,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #phasor14 /= np.max(np.abs(phasor14))
 
         M = 500
-        max_delay = np.max(np.abs(self.module_signal_processor.delay_log[:,-1])) 
+        max_delay = np.max(np.abs(self.module_signal_processor.delay_log[:,-1]))
         if max_delay+50 > M:
             M=max_delay+50
 
-        delay_label = np.arange(-M,M+1,1) 
-        
+        delay_label = np.arange(-M,M+1,1)
+
 #        if(xcorr12[0] != 0 and xcorr13[0] != 0 and xcorr14[0] != 0):
         self.plotWidget_sync_absx.clear()
 
-        self.plotWidget_sync_absx.plot(delay_label, xcorr12[N-M:N+M+1], pen='b')
+        self.plotWidget_sync_absx.plot(delay_label, xcorr12[N-M:N+M+1], pen=(255, 199, 15))
         self.plotWidget_sync_absx.plot(delay_label, xcorr13[N-M:N+M+1], pen='r')
         self.plotWidget_sync_absx.plot(delay_label, xcorr14[N-M:N+M+1], pen='g')
 
@@ -579,7 +613,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.plotWidget_sync_sampd.clear()
 
-        self.plotWidget_sync_sampd.plot(self.module_signal_processor.delay_log[0,:], pen='b')
+        self.plotWidget_sync_sampd.plot(self.module_signal_processor.delay_log[0,:], pen=(255, 199, 15))
         self.plotWidget_sync_sampd.plot(self.module_signal_processor.delay_log[1,:], pen='r')
         self.plotWidget_sync_sampd.plot(self.module_signal_processor.delay_log[2,:], pen='g')
 
@@ -590,12 +624,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #self.plotWidget_sync_normph.plot(np.cos(np.deg2rad(self.module_signal_processor.phase_log[0,:])), np.sin(np.deg2rad(self.module_signal_processor.phase_log[0,:])), pen=None, symbol='o', symbolBrush=(100,100,255,50))
         #self.plotWidget_sync_normph.plot(np.cos(np.deg2rad(self.module_signal_processor.phase_log[0,:])), np.sin(np.deg2rad(self.module_signal_processor.phase_log[0,:])), pen=None, symbol='o', symbolBrush=(150,150,150,50))
         #self.plotWidget_sync_normph.plot(np.cos(np.deg2rad(self.module_signal_processor.phase_log[0,:])), np.sin(np.deg2rad(self.module_signal_processor.phase_log[0,:])), pen=None, symbol='o', symbolBrush=(50,50,50,50))
-        
+
         # Plot phase history
 
         self.plotWidget_sync_phasediff.clear()
 
-        self.plotWidget_sync_phasediff.plot(self.module_signal_processor.phase_log[0,:], pen='b')
+        self.plotWidget_sync_phasediff.plot(self.module_signal_processor.phase_log[0,:], pen=(255, 199, 15))
         self.plotWidget_sync_phasediff.plot(self.module_signal_processor.phase_log[1,:], pen='r')
         self.plotWidget_sync_phasediff.plot(self.module_signal_processor.phase_log[2,:], pen='g')
 
@@ -605,12 +639,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.export_sync.export('/ram/sync.jpg')
 
 
-    def DOA_plot_helper(self, DOA_data, incident_angles, log_scale_min=None, color='b', legend=None):
+    def DOA_plot_helper(self, DOA_data, incident_angles, log_scale_min=None, color=(255, 199, 15), legend=None):
 
         DOA_data = np.divide(np.abs(DOA_data), np.max(np.abs(DOA_data))) # normalization
-        if(log_scale_min != None):        
+        if(log_scale_min != None):
             DOA_data = 10*np.log10(DOA_data)
-            theta_index = 0        
+            theta_index = 0
             for theta in incident_angles:
                 if DOA_data[theta_index] < log_scale_min:
                     DOA_data[theta_index] = log_scale_min
@@ -636,7 +670,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if self.module_signal_processor.en_DOA_Bartlett:
 
-            plt = self.DOA_plot_helper(Bartlett, thetas, log_scale_min = -50, color='b')
+            plt = self.DOA_plot_helper(Bartlett, thetas, log_scale_min = -50, color=(255, 199, 15))
             COMBINED += np.divide(np.abs(Bartlett),np.max(np.abs(Bartlett)))
             #de.DOA_plot(Bartlett, thetas, log_scale_min = -50, axes=self.axes_DOA)
             DOA_results.append(thetas[np.argmax(Bartlett)])
@@ -657,7 +691,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if self.module_signal_processor.en_DOA_MUSIC:
 
-            self.DOA_plot_helper(MUSIC, thetas, log_scale_min = -50, color='c')
+            self.DOA_plot_helper(MUSIC, thetas, log_scale_min = -50, color=(9, 237, 237))
             COMBINED += np.divide(np.abs(MUSIC),np.max(np.abs(MUSIC)))
             #de.DOA_plot(MUSIC, thetas, log_scale_min = -50, axes=self.axes_DOA)
             DOA_results.append(thetas[np.argmax(MUSIC)])
@@ -668,7 +702,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if len(DOA_results) != 0:
 
             # Combined Graph (beta)
-            COMBINED_LOG = self.DOA_plot_helper(COMBINED, thetas, log_scale_min = -50, color='k')
+            COMBINED_LOG = self.DOA_plot_helper(COMBINED, thetas, log_scale_min = -50, color=(163, 64, 245))
 
             confidence = scipy.signal.find_peaks_cwt(COMBINED_LOG, np.arange(10,30), min_snr=1) #np.max(DOA_combined**2) / np.average(DOA_combined**2)
             maxIndex = confidence[np.argmax(COMBINED_LOG[confidence])]
@@ -700,17 +734,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             DOA = np.rad2deg(np.angle(DOA_avg_c))
 
             # Update DOA results on the compass display
-            #print("[ INFO ] Python GUI: DOA results :",DOA_results)             
+            #print("[ INFO ] Python GUI: DOA results :",DOA_results)
             if DOA < 0:
                 DOA += 360
             #DOA = 360 - DOA
-            DOA_str = str(int(DOA)) 
-            html_str = "<DOA>"+DOA_str+"</DOA><CONF>"+str(int(confidence_sum))+"</CONF><PWR>"+str(np.maximum(0, max_power_level))+"</PWR>"
+            DOA_str = str(int(DOA))
+            html_str = "<DATA>\n<DOA>"+DOA_str+"</DOA>\n<CONF>"+str(int(confidence_sum))+"</CONF>\n<PWR>"+str(np.maximum(0, max_power_level))+"</PWR>\n</DATA>"
             self.DOA_res_fd.seek(0)
             self.DOA_res_fd.write(html_str)
             self.DOA_res_fd.truncate()
             #print("[ INFO ] Python GUI: DOA results writen:",html_str)
-                                                                                 
+
         #self.DOA_res_fd.close()
 
         currentTime = time.time()
@@ -718,25 +752,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.DOA_time = currentTime
             self.export_DOA.export('/ram/doa.jpg')
 
-       
 
-    def RD_plot(self):        
+
+    def RD_plot(self):
         """
         Event type: Surveillance processor module has calculated the new range-Doppler matrix
-    
         callback description:
         ------------------
             Plot the previously obtained range-Doppler matrix
-        """        
+        """
         # If Automatic detection is disabled the range-Doppler matrix is plotted otherwise the matrix
         if not self.checkBox_en_autodet.checkState():
-            
+
             # Set colormap TODO: Implement this properly
             colormap = cm.get_cmap("jet")
             colormap._init()
             lut = (colormap._lut * 255).view(np.ndarray)
             self.img_PR.imageItem.setLookupTable(lut)
-        
+
             CAFMatrix = self.module_signal_processor.RD_matrix
             CAFMatrix = np.abs(CAFMatrix)
             CAFDynRange = self.spinBox_rd_dyn_range.value()
@@ -757,19 +790,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             # plot
             #CAFPlot = self.axes_RD.imshow(CAFMatrixLog, interpolation='sinc', cmap='jet', origin='lower', aspect='auto')
-            plotPRImage = scipy.ndimage.zoom(CAFMatrixLog, self.PR_interp_factor, order=3)    
+            plotPRImage = scipy.ndimage.zoom(CAFMatrixLog, self.PR_interp_factor, order=3)
             self.img_PR.clear()
             self.img_PR.setImage(plotPRImage)
 
-        
+
         else:
             # Set colormap TODO: Implement this properly
             colormap = cm.get_cmap("gray")
             colormap._init()
             lut = (colormap._lut * 255).view(np.ndarray)
-            self.img_PR.imageItem.setLookupTable(lut)            
+            self.img_PR.imageItem.setLookupTable(lut)
             CAFMatrix = self.module_signal_processor.hit_matrix
-            plotPRImage = scipy.ndimage.zoom(CAFMatrix, self.PR_interp_factor, order=3)    
+            plotPRImage = scipy.ndimage.zoom(CAFMatrix, self.PR_interp_factor, order=3)
             self.img_PR.clear()
             self.img_PR.setImage(plotPRImage)
 
@@ -791,9 +824,17 @@ form.show()
 
 
 def reboot_program():
-    form.module_receiver.close()     
+    form.module_receiver.close()
     form.DOA_res_fd.close()
     subprocess.call(['./run.sh'])
+
+#@route('/static/:path#.+#', name='static')
+#def static(path):
+    #return static_file(path, root='static')
+
+@route('/static/<filepath:path>', name='static')
+def server_static(filepath):
+    return static_file(filepath, root='./static')
 
 
 @get('/pr')
@@ -882,8 +923,7 @@ def do_pr():
 @get('/doa')
 def doa():
     ant_arrangement_index = int(form.comboBox_antenna_alignment.currentIndex())
-    ant_spacing = form.doubleSpinBox_DOA_d.value()
-
+    ant_meters = form.doubleSpinBox_DOA_d.value()
     en_doa = form.checkBox_en_DOA.checkState()
     en_bartlett = form.checkBox_en_DOA_Bartlett.checkState()
     en_capon = form.checkBox_en_DOA_Capon.checkState()
@@ -893,7 +933,8 @@ def doa():
     ip_addr = form.ip_addr
 
     return template ('doa.tpl', {'ant_arrangement_index':ant_arrangement_index,
-				'ant_spacing':ant_spacing,
+#				'ant_spacing':ant_spacing,
+                'ant_meters' :ant_meters,
 				'en_doa':en_doa,
 				'en_bartlett':en_bartlett,
 				'en_capon':en_capon,
@@ -913,7 +954,7 @@ def do_doa():
 
     en_doa = request.forms.get('en_doa')
     form.checkBox_en_DOA.setChecked(True if en_doa=="on" else False)
-    
+
     en_bartlett = request.forms.get('en_bartlett')
     form.checkBox_en_DOA_Bartlett.setChecked(True if en_bartlett=="on" else False)
 
@@ -947,6 +988,19 @@ def sync():
 @post('/sync')
 def do_sync():
 
+    if (request.POST.get('enable_all_sync') == 'enable_all_sync'):
+        current_sync = form.checkBox_en_sync_display.checkState()
+        current_noise = form.checkBox_en_noise_source.checkState()
+        if (current_sync == False) and (current_noise == False):
+            form.checkBox_en_sync_display.setChecked(True)
+            form.checkBox_en_noise_source.setChecked(True)
+        else:
+            form.checkBox_en_sync_display.setChecked(False)
+            form.checkBox_en_noise_source.setChecked(False)
+
+        form.switch_noise_source()
+        form.set_sync_params()
+
     if (request.POST.get('update_sync') == 'update_sync'):
         en_sync = request.forms.get('en_sync')
         form.checkBox_en_sync_display.setChecked(True if en_sync=="on" else False)
@@ -972,6 +1026,7 @@ def do_sync():
 def init():
     center_freq = form.doubleSpinBox_center_freq.value()
     samp_index = int(form.comboBox_sampling_freq.currentIndex())
+    uniform_gain = form.checkBox_en_uniform_gain.checkState()
     gain_index = int(form.comboBox_gain.currentIndex())
     gain_index_2 = int(form.comboBox_gain_2.currentIndex())
     gain_index_3 = int(form.comboBox_gain_3.currentIndex())
@@ -982,8 +1037,9 @@ def init():
     decimation = form.spinBox_decimation.value()
     ip_addr = form.ip_addr
 
-    return template ('init.tpl', {'center_freq':center_freq, 
-				'samp_index':samp_index, 
+    return template ('init.tpl', {'center_freq':center_freq,
+				'samp_index':samp_index,
+                'uniform_gain':uniform_gain,
 				'gain_index':gain_index,
 				'gain_index_2':gain_index_2,
 				'gain_index_3':gain_index_3,
@@ -1003,17 +1059,27 @@ def do_init():
         samp_index = request.forms.get('samp_freq')
         form.comboBox_sampling_freq.setCurrentIndex(int(samp_index))
 
-        gain_index = request.forms.get('gain')
-        form.comboBox_gain.setCurrentIndex(int(gain_index))
-        
-        gain_index_2 = request.forms.get('gain_2')
-        form.comboBox_gain_2.setCurrentIndex(int(gain_index_2))
-        
-        gain_index_3 = request.forms.get('gain_3')
-        form.comboBox_gain_3.setCurrentIndex(int(gain_index_3))
-        
-        gain_index_4 = request.forms.get('gain_4')
-        form.comboBox_gain_4.setCurrentIndex(int(gain_index_4))
+        uniform_gain = request.forms.get('uniform_gain')
+        form.checkBox_en_uniform_gain.setChecked(True if uniform_gain=="on" else False)
+
+        if uniform_gain == "on":
+            gain_index = request.forms.get('gain')
+            form.comboBox_gain.setCurrentIndex(int(gain_index))
+            gain_index_2 = request.forms.get('gain')
+            form.comboBox_gain_2.setCurrentIndex(int(gain_index))
+            gain_index_3 = request.forms.get('gain')
+            form.comboBox_gain_3.setCurrentIndex(int(gain_index))
+            gain_index_4 = request.forms.get('gain')
+            form.comboBox_gain_4.setCurrentIndex(int(gain_index))
+        else:
+            gain_index = request.forms.get('gain')
+            form.comboBox_gain.setCurrentIndex(int(gain_index))
+            gain_index_2 = request.forms.get('gain_2')
+            form.comboBox_gain_2.setCurrentIndex(int(gain_index_2))
+            gain_index_3 = request.forms.get('gain_3')
+            form.comboBox_gain_3.setCurrentIndex(int(gain_index_3))
+            gain_index_4 = request.forms.get('gain_4')
+            form.comboBox_gain_4.setCurrentIndex(int(gain_index_4))
 
         form.pb_rec_reconfig_clicked()
 
@@ -1052,10 +1118,6 @@ def do_init():
 
     return redirect('init')
 
-#@route('/static/:path#.+#', name='static')
-#def static(path):
-#    return static_file(path, root='static')
-
 @get('/stats')
 def stats():
 
@@ -1070,4 +1132,3 @@ def stats():
 				'ovr_drv':ovr_drv})
 
 app.exec_()
-

@@ -350,7 +350,7 @@ class SignalProcessor(QtCore.QThread):
             if self.en_DOA_MUSIC:
                 self.DOA_MUSIC_res = de.DOA_MUSIC(R, scanning_vectors, signal_dimension = 1)
 
-        print(self.DOA_MUSIC_res)
+        #print(self.DOA_MUSIC_res)
 
 
     def PR_processing(self):

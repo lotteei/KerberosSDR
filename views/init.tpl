@@ -1,10 +1,32 @@
 <html>
-<meta http-equiv="Cache-control" content="no-cache" charset="utf-8">
-<p><font size = "4"><a href="/init">Configuration and Spectrum</a> | <a href="/sync">Sync</a> | <a href="/doa">DOA Estimation</a> | <a href="/pr">Passive Radar</a></font></p>
+<head>
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta http-equiv="Cache-control" content="no-cache" charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="static/style.css">
+  <script>
+    function check_check_box() {
+      var elms = document.getElementsByClassName('disable')
+      if (document.getElementById("uniform_gain_id").checked) {
+        for (var i = 0; i < elms.length; i++) {
+          elms[i].disabled=true;
+        }
+        }
+      else {
+        for (var i = 0; i < elms.length; i++) {
+          elms[i].removeAttribute("disabled");
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+<p class="header"><a class="header_init" href="/init">Configuration and Spectrum</a> | <a class="header_sync" href="/sync">Sync</a> |
+  <a class="header_doa" href="/doa">DOA Estimation</a> | <a class="header_pr" href="/pr">Passive Radar</a>
+</p>
 <hr>
 
 <div>
-<b>Receiver Configuration</b>
+<h2 id="init_title">Receiver Configuration</h2>
 <form action="/init" method="post">
         <input type="hidden" name="rcv_params" value="rcv_params" />
 	<p>Center Frequency [MHz]: <input type="number" value="{{center_freq}}" step="0.0001" name="center_freq"/></p>
@@ -21,6 +43,8 @@
 		<option value="7" {{!'selected="selected"' if samp_index == 7 else ""}}>2.4</option>
 		<option value="8" {{!'selected="selected"' if samp_index == 8 else ""}}>2.56</option>
 	</select></p>
+
+  <input id="uniform_gain_id" type="checkbox" name="uniform_gain" value="on" onclick="check_check_box()" {{!'checked="checked"' if uniform_gain >= 1 else ""}}> Uniform Gain<br>
 
         <p>RX1 Gain [dB]:
 	<select name = "gain">
@@ -57,7 +81,7 @@
 
 
         <p>RX2 Gain [dB]:
-	<select name = "gain_2">
+	<select class="disable" {{!'disabled' if uniform_gain >= 1 else ""}} name = "gain_2">
 		<option value="0" {{!'selected="selected"' if gain_index_2 == 0 else ""}}>0</option>
 		<option value="1" {{!'selected="selected"' if gain_index_2 == 1 else ""}}>0.9</option>
 		<option value="2" {{!'selected="selected"' if gain_index_2 == 2 else ""}}>1.4</option>
@@ -91,7 +115,7 @@
 
 
         <p>RX3 Gain [dB]:
-	<select name = "gain_3">
+	<select class="disable" {{!'disabled' if uniform_gain >= 1 else ""}} name = "gain_3">
 		<option value="0" {{!'selected="selected"' if gain_index_3 == 0 else ""}}>0</option>
 		<option value="1" {{!'selected="selected"' if gain_index_3 == 1 else ""}}>0.9</option>
 		<option value="2" {{!'selected="selected"' if gain_index_3 == 2 else ""}}>1.4</option>
@@ -125,7 +149,7 @@
 
 
         <p>RX4 Gain [dB]:
-	<select name = "gain_4">
+	<select class="disable" {{!'disabled' if uniform_gain >= 1 else ""}} name = "gain_4">
 		<option value="0" {{!'selected="selected"' if gain_index_4 == 0 else ""}}>0</option>
 		<option value="1" {{!'selected="selected"' if gain_index_4 == 1 else ""}}>0.9</option>
 		<option value="2" {{!'selected="selected"' if gain_index_4 == 2 else ""}}>1.4</option>
@@ -158,7 +182,7 @@
 	</select></p>
 
 
-	<p><input value="Update Receiver Paramaters" type="submit" /></p>
+	<p><input value="Update Receiver Paramaters" type="submit" style="height:40px;"/></p>
 
 </form>
 <hr>
@@ -171,34 +195,33 @@
 	<p>Filter BW [kHz]: <input type="number" value="{{filt_bw}}" step="0.001" name="filt_bw"/></p>
 	<p>FIR Tap Size: <input type="number" value="{{fir_size}}" step="1" name="fir_size"/></p>
 	<p>Decimation: <input type="number" value="{{decimation}}" step="1" name="decimation"/></p>
-        
-        <p><input value="Update IQ Paramaters" type="submit" /></p>
+  <p><input value="Update IQ Paramaters" type="submit" style="height:40px;"/></p>
 </form>
 <hr>
 
 <form action="/init" method="post">
         <input type="hidden" name="start_spec" value="start_spec" />
-	<input value="Start Spectrum Display" type="submit" />
+	<input value="Start Spectrum Display" type="submit" style="height:40px;"/>
 </form>
 <form action="/init" method="post">
         <input type="hidden" name="stop_spec" value="stop_spec" />
-	<input value="Stop Spectrum Display" type="submit" />
+	<input value="Stop Spectrum Display" type="submit" style="height:40px;"/>
 </form>
 <hr>
 
 <form action="/init" method="post">
         <input type="hidden" name="start" value="start" />
-	<p><input value="Start Processing" type="submit" /></p>
+	<p><input value="Start Processing" type="submit" style="height:40px;"/></p>
 </form>
 <form action="/init" method="post">
         <input type="hidden" name="stop" value="stop" />
-	<p><input value="Stop Processing" type="submit" /></p>
+	<p><input value="Stop Processing" type="submit" style="height:40px;"/></p>
 </form>
 <iframe width=100% height=5% src="http://{{ip_addr}}:8080/stats"></iframe>
 <hr>
 <form action="/init" method="post">
         <input type="hidden" name="reboot" value="reboot" />
-	<p><input value="Reboot Software" type="submit" /></p>
+	<p><input value="Reboot Software" type="submit" style="height:40px;"/></p>
 </form>
 <div>
 <!--<script type="text/javascript" src="/static/refresh_image.js" charset="utf-8" style="float:right"></script>
@@ -208,4 +231,5 @@
 </body>-->
 <iframe width=100% height=100% src="http://{{ip_addr}}:8081/init_graph.html"></iframe>
 </div>
+</body>
 </html>
