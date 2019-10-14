@@ -1101,9 +1101,11 @@ def do_init():
 
     if (request.POST.get('start') == 'start'):
         form.module_signal_processor.start()
+        form.pushButton_proc_control.setText("Stop processing")
 
     if (request.POST.get('stop') == 'stop'):
         form.module_signal_processor.stop()
+        form.pushButton_proc_control.setText("Start processing")
 
     if (request.POST.get('start_spec') == 'start_spec'):
         form.checkBox_en_spectrum.setChecked(True)
