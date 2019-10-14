@@ -3,7 +3,7 @@
 BUFF_SIZE=256 #Must be a power of 2. Normal values are 128, 256. 512 is possible on a fast PC.
 IPADDR="0.0.0.0"
 # IPADDR=$(ip addr show wlan0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
-# while [ "$IPADDR" == "" ] || [ "$IPADDR" == "169.*" ]
+# while [ "$IPADDR" == "" ] || [ "$IPADDR" == "169.254.*" ]
 # do
 # sleep 1
 # echo "waiting for network"
