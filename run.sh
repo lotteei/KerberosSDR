@@ -2,12 +2,25 @@
 
 BUFF_SIZE=256 #Must be a power of 2. Normal values are 128, 256. 512 is possible on a fast PC.
 IPADDR="0.0.0.0"
-#IPADDR="192.168.4.1"
+
+### Uncomment the following section to automatically get the IP address from interface wlan0 ###
+### Don't forget to comment out "IPADDR="0.0.0.0" ###
+
+# IPADDR=$(ip addr show wlan0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
+# while [ "$IPADDR" == "" ] || [ "$IPADDR" == "169.254.*" ]
+# do
+# sleep 1
+# echo "waiting for network"
+# IPADDR=$(ip addr show wlan0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
+# echo $IPADDR
+# done
+
+### End of Section ###
 
 # Useful to set this on low power ARM devices
 #sudo cpufreq-set -g performance
 
-# Set for RPI3 with heatsink/fan 
+# Set for RPI3 with heatsink/fan
 #sudo cpufreq-set -d 1.4GHz
 # Set for Tinkerboard with heatsink/fan
 #sudo cpufreq-set -d 1.8GHz
