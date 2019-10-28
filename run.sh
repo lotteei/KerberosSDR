@@ -50,13 +50,13 @@ sleep 1
 sudo mount -osize=30m tmpfs /ram -t tmpfs
 
 # Remake Controller FIFOs
-rm _receiver/C/gate_control_fifo
+rm -f _receiver/C/gate_control_fifo
 mkfifo _receiver/C/gate_control_fifo
 
-rm _receiver/C/sync_control_fifo
+rm -f _receiver/C/sync_control_fifo
 mkfifo _receiver/C/sync_control_fifo
 
-rm _receiver/C/rec_control_fifo
+rm -f _receiver/C/rec_control_fifo
 mkfifo _receiver/C/rec_control_fifo
 
 # Start programs at realtime priority levels
