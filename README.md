@@ -65,6 +65,7 @@ Install KerberosSDR Demo Software
 7. <h4>Clone or unzip the software</h4>
 
   `git clone https://github.com/rtlsdrblog/kerberossdr`<br>
+  `cd kerberossdr`<br>
   `sh setup_init.sh`
 
 8. <h4>Now you can run the software by typing</h4>
