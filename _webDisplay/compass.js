@@ -73,9 +73,6 @@ function draw() {
             // Draw the image back and up
             ctx.drawImage(needle, -45, -400); // Set to arrow size/2
 
-
-            //ctx.fillRect(-20, -50, 20, 100);
-
             // Restore the previous drawing state
             ctx.restore();
         }
@@ -86,7 +83,7 @@ function draw() {
         document.getElementById("doa").innerHTML = DOA_message;
 
         var PWR_message = "Signal Power: ";
-        PWR_message = PWR_message.concat(PWR_val, " dB");
+        PWR_message = PWR_message.concat(Math.round(PWR_val * 100)/100, " dB");
         document.getElementById("pwr").innerHTML = PWR_message;
 
         var CONF_message = "DOA Confidence: ";
@@ -101,13 +98,32 @@ function imgLoaded() {
     setInterval(draw, 100);
 }
 
+function getSize() {
+    // Body has 8px of padding on each side
+    var width = window.innerWidth - 16;
+    var height = window.innerHeight - 16;
+    
+    // Canvas width & height = 100%
+    // Max-width & max-height = 800px
+    var size = Math.min(width, height, 800);
+    
+    return size;
+}
+
 function init() {
     // Grab the compass element
     var canvas = document.getElementById('compass');
+    var size = getSize();
+    var scale = size/800;
+
+    canvas.width = size;
+    canvas.height = size;
+    
 
     // Is Canvas supported?
     if (canvas.getContext('2d')) {
         ctx = canvas.getContext('2d');
+        ctx.scale(scale, scale, scale);
 
         // Load the needle image
         needle = new Image();
