@@ -1,7 +1,7 @@
 // Const values. Adjust these for intermittant signals. E.g. Update compass ONLY when received power
 // is above a certain value
-    const MIN_PWR = 0;
-    const MIN_CONF = 0;
+    var MIN_PWR = 0;
+    var MIN_CONF = 0;
 
 // Global variables
     var img = null;
@@ -110,11 +110,55 @@ function getSize() {
     return size;
 }
 
+function setCookie() {
+    var d = new Date();
+    d.setTime(d.getTime() + (10*365*24*60*60*1000)); // ten years from now
+    var expires = "expires=" + d.toGMTString();
+    
+    MIN_PWR = document.getElementById('MIN_PWR').value;
+    MIN_CONF = document.getElementById('MIN_CONF').value;
+    
+    document.cookie = 'MIN_PWR' + "=" + MIN_PWR + ";" + expires + ";path=/";
+    document.cookie = 'MIN_CONF' + "=" + MIN_CONF + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function checkCookie() {
+    MIN_PWR = getCookie("MIN_PWR");
+    MIN_CONF = getCookie("MIN_CONF");
+    if (MIN_PWR == "") {
+        MIN_PWR = 0;
+    }
+    if (MIN_CONF == "") {
+        MIN_CONF = 0;
+    }
+    document.getElementById("MIN_PWR").value = MIN_PWR;
+    document.getElementById("MIN_CONF").value = MIN_CONF;
+}
+
 function init() {
     // Grab the compass element
     var canvas = document.getElementById('compass');
     var size = getSize();
     var scale = size/800;
+    
+    // Set the min power and confidence
+    checkCookie();
 
     canvas.width = size;
     canvas.height = size;
