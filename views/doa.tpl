@@ -19,9 +19,9 @@
   </head>
   <body>
     <div class="header">
-        <a class="header_init" href="/init">Configuration and Spectrum</a> | 
-        <a class="header_sync" href="/sync">Sync</a> | 
-        <a class="header_doa" id="active" href="/doa">DOA Estimation</a> | 
+        <a class="header_init" href="/init">Configuration and Spectrum</a> |
+        <a class="header_sync" href="/sync">Sync</a> |
+        <a class="header_doa" id="active" href="/doa">DOA Estimation</a> |
         <a class="header_pr" href="/pr">Passive Radar</a>
     </div>
 
@@ -49,16 +49,43 @@
                     </select>
                 </div>
             </div>
-            
+
             <div class="field">
                 <div class="field-label">
                     <label for="ant_spacing">Spacing [meters]:</label>
                 </div>
                 <div class="field-body">
-                    <input type="number" value="{{ant_meters}}" step="0.0001" name="ant_spacing"/>
+                    <input id="inputMeters" type="number" value="{{ant_meters}}" step="0.0001" name="ant_spacing" oninput="from_meters(this.value)"/>
+                </div>
+                <div class="field-label">
+                    <label for="ant_spacing">Spacing [feet]:</label>
+                </div>
+                <div class="field-body">
+                    <input id="inputFeet" type="number" step="0.0001" oninput="from_feet(this.value)" placeholder="Feet"/>
+                </div>
+                <div class="field-label">
+                    <label for="ant_spacing">Spacing [inches]:</label>
+                </div>
+                <div class="field-body">
+                    <input id="inputInches" type="number" step="0.0001" oninput="from_inches(this.value)" placeholder="Inches"/>
                 </div>
             </div>
-            
+
+            <script type="text/javascript">
+              function from_meters(valNum) {
+                document.getElementById("inputFeet").value=(valNum*3.28084).toFixed(4);
+                document.getElementById("inputInches").value=(valNum*39.3701).toFixed(4);
+              }
+              function from_feet(valNum) {
+                document.getElementById("inputMeters").value=(valNum/3.2808).toFixed(4);
+                document.getElementById("inputInches").value=(valNum*12).toFixed(4);
+              }
+              function from_inches(valNum) {
+                document.getElementById("inputMeters").value=(valNum/39.3701).toFixed(4);
+                document.getElementById("inputFeet").value=(valNum/12).toFixed(4);
+              }
+            </script>
+
             <div class="field">
                 <div class="field-label">
                     <label for="en_doa">Enable DOA</label>
@@ -67,7 +94,7 @@
                     <input type="checkbox" name="en_doa" value="on" {{!'checked="checked"' if en_doa >= 1 else ""}}>
                 </div>
             </div>
-            
+
             <div class="field">
                 <div class="field-label">
                     <label for="doa_check">Algorithm</label>
@@ -89,14 +116,14 @@
                     <input id="fb_avg" type="checkbox" name="en_fbavg" value="on" onChange="check_uca();" {{!'disabled' if ant_arrangement_index > 0 else ""}} {{!'checked="checked"' if en_fbavg >= 1 else ""}}>
                 </div>
             </div>
-            
+
 
             <div class="field">
                 <input value="Update DOA" type="submit" class="btn" />
             </div>
         </form>
     </div>
-    
+
     <iframe width=100% height=5% src="http://{{ip_addr}}:8080/stats"></iframe>
     <!--<script type="text/javascript" src="/static/refresh_image.js" charset="utf-8" style="float:right"></script>
 
