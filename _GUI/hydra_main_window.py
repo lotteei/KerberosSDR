@@ -913,7 +913,6 @@ def init_settings():
     form.doubleSpinBox_cfar_threshold.setProperty("value", thresh_det)
 
 
-
 def reboot_program():
     form.module_receiver.close()
     form.DOA_res_fd.close()
@@ -1140,6 +1139,7 @@ def do_sync():
     settings.write()
     return redirect('sync')
 
+@get('/')
 @get('/init')
 def init():
     center_freq = form.doubleSpinBox_center_freq.value()
