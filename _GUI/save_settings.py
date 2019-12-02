@@ -1,8 +1,13 @@
 import json
+import os
 
-with open('settings.json', 'r') as myfile:
-    settings=json.loads(myfile.read())
-
+if os.path.exists('settings.json'):
+    with open('settings.json', 'r') as myfile:
+        settings=json.loads(myfile.read())
+else:
+    settings = {}
+    with open('settings.json', 'w') as outfile:
+        json.dump(settings, outfile)
 
 # Receiver Configuration
 center_freq = settings.get("center_freq", 100.0)
