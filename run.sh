@@ -4,7 +4,16 @@ BUFF_SIZE=256 #Must be a power of 2. Normal values are 128, 256. 512 is possible
 IPADDR="0.0.0.0"
 IPPORT="8081"
 
-OUTPUT_FD="/dev/null"    # set to /dev/null for no logging, set to some file for logfile. 
+# set to /dev/null for no logging, set to some file for logfile. You can also set it to the same file. 
+RTLDAQLOG="rtl_daq.log"
+SYNCLOG="sync.log"
+GATELOG="gate.log"
+PYTHONLOG="python.log"
+
+
+# If you want to kill all matching processes on startup without prompt. Otherwise, set it to anything else. 
+FORCE_KILL="no"
+
 
 ### Uncomment the following section to automatically get the IP address from interface wlan0 ###
 ### Don't forget to comment out "IPADDR="0.0.0.0" ###
@@ -29,15 +38,21 @@ OUTPUT_FD="/dev/null"    # set to /dev/null for no logging, set to some file for
 #sudo cpufreq-set -d 1.8GHz
 
 
-# Trap SIGING (2) (ctrl-C) as well as SIGTERM (6), run cleanup if either is caught
+# Trap SIGINT (2) (ctrl-C) as well as SIGTERM (6), run cleanup if either is caught
 trap cleanup 2 6
 
 cleanup() {
 	# Kill all processes that have been spawned by this program.
 	# we know that these processes have "_receiver", "_GUI" and "_webDisplay" in their names. 
+	exec 2> /dev/null           # Suppress "Terminated" message. 
 	sudo pkill -f "_receiver" 
 	sudo pkill -f "_GUI"
 	sudo pkill -f "_webDisplay" 
+	
+	# also delete all pipes: 
+	rm -f _receiver/C/gate_control_fifo
+    rm -f _receiver/C/sync_control_fifo
+    rm -f _receiver/C/rec_control_fifo
 }
 
 
@@ -48,18 +63,21 @@ echo '3' | sudo dd of=/proc/sys/vm/drop_caches status=none
 echo "Starting KerberosSDR"
 
 # Check for old processes that could interfere, print warning: 
-for string in rtl sim sync gate python3 ; do 
+for string in rtl sim _recei.*sync gate hydra ; do 
     pgrep -af $string 
 	if [[ $? -eq 0 ]] ; then 
-	    read -p "The processes listed above were found and could interfere with the programm. Do you want to kill them now? [y|N] " -n1 -r
-		if [[ $REPLY =~ ^[Yy]$ ]]
+        if [[ "$FORCE_KILL" != "yes" ]]; then
+            read -p "The processes listed above were found and could interfere with the program. Do you want to kill them now? [y|N]" -n1 -r
+            echo # newline. 
+	    fi
+		if [[ "$FORCE_KILL" == "yes" || "$REPLY" =~ ^[Yy]$ ]]
 		then
 			sudo pkill $string
 		else
 			echo "OK, not killing these processes. Hope you know what you're doing"
 		fi
 	fi	
-end
+done
 		
 #sudo kill $(ps aux | grep 'rtl' | awk '{print $2}') 2>$OUTPUT_FD || true
 
@@ -73,7 +91,8 @@ sleep 1
 # Create RAMDISK for jpg files
 sudo mount -osize=30m tmpfs /ram -t tmpfs
 
-# Remake Controller FIFOs
+# Remake Controller FIFOs. Deleting them should not be neccessary after 
+# a clean exit, but why not do it anyway... 
 rm -f _receiver/C/gate_control_fifo
 mkfifo _receiver/C/gate_control_fifo
 
@@ -85,15 +104,10 @@ mkfifo _receiver/C/rec_control_fifo
 
 # Start programs at realtime priority levels
 curr_user=$(whoami)
-sudo chrt -r 50 ionice -c 1 -n 0 ./_receiver/C/rtl_daq $BUFF_SIZE 2>$OUTPUT_FD 1| \
-	sudo chrt -r 50 ./_receiver/C/sync $BUFF_SIZE 2>$OUTPUT_FD 1| \
-	sudo chrt -r 50 ./_receiver/C/gate $BUFF_SIZE 2>$OUTPUT_FD 1| \
-	sudo nice -n -20 sudo -u $curr_user python3 -O _GUI/hydra_main_window.py $BUFF_SIZE $IPADDR &>$OUTPUT_FD &
-	
-echo "Python process has PID $!" 
-
-# Comment the above and uncomment the below to show all errors to the log files
-#sudo chrt -r 50 ionice -c 1 -n 0 ./_receiver/C/rtl_daq $BUFF_SIZE 2>log_rtl_daq 1| sudo chrt -r 50 ./_receiver/C/sync $BUFF_SIZE 2>log_sync 1| sudo chrt -r 50 ./_receiver/C/gate $BUFF_SIZE 2>log_gate 1|sudo nice -n -20 sudo -u $curr_user python3 -O _GUI/hydra_main_window.py $BUFF_SIZE $IPADDR &>log_python&
+sudo chrt -r 50 ionice -c 1 -n 0 ./_receiver/C/rtl_daq $BUFF_SIZE 2>$RTLDAQLOG 1| \
+	sudo chrt -r 50 ./_receiver/C/sync $BUFF_SIZE 2>$SYNCLOG 1| \
+	sudo chrt -r 50 ./_receiver/C/gate $BUFF_SIZE 2>$GATELOG 1| \
+	sudo nice -n -20 sudo -u $curr_user python3 -O _GUI/hydra_main_window.py $BUFF_SIZE $IPADDR &>$PYTHONLOG &
 
 # Start PHP webserver which serves the updating images
 echo "Server running at $IPADDR:$IPPORT"
