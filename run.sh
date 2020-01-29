@@ -16,7 +16,7 @@ GATELOG="/dev/null"
 PYTHONLOG="/dev/null"
 
 # If you want to kill all matching processes on startup without prompt. Otherwise, set it to anything else. 
-FORCE_KILL="no"
+FORCE_KILL="yes"
 
 
 ### Uncomment the following section to automatically get the IP address from interface wlan0 ###
@@ -55,8 +55,8 @@ cleanup() {
 	
 	# also delete all pipes: 
 	rm -f _receiver/C/gate_control_fifo
-    rm -f _receiver/C/sync_control_fifo
-    rm -f _receiver/C/rec_control_fifo
+        rm -f _receiver/C/sync_control_fifo
+        rm -f _receiver/C/rec_control_fifo
 }
 
 
