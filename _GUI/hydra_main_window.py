@@ -29,6 +29,7 @@ import scipy
 from bottle import route, run, request, get, post, redirect, template, static_file
 import threading
 import subprocess
+import save_settings as settings
 
 np.seterr(divide='ignore')
 
@@ -850,6 +851,95 @@ app = QApplication(sys.argv)
 form = MainWindow()
 form.show()
 
+def init_settings():
+
+    # Receiver Configuration
+    center_freq = settings.center_freq
+    samp_index = settings.samp_index
+    uniform_gain = settings.uniform_gain
+    gain_index = settings.gain_index
+    gain_index_2 = settings.gain_index_2
+    gain_index_3 = settings.gain_index_3
+    gain_index_4 = settings.gain_index_4
+
+    form.doubleSpinBox_center_freq.setProperty("value", center_freq)
+    form.comboBox_sampling_freq.setCurrentIndex(int(samp_index))
+    form.checkBox_en_uniform_gain.setChecked(True if uniform_gain=="on" else False)
+    form.comboBox_gain.setCurrentIndex(int(gain_index))
+    form.comboBox_gain_2.setCurrentIndex(int(gain_index))
+    form.comboBox_gain_3.setCurrentIndex(int(gain_index))
+    form.comboBox_gain_4.setCurrentIndex(int(gain_index))
+
+
+    # IQ Preprocessing
+    dc_comp = settings.dc_comp
+    filt_bw = settings.filt_bw
+    fir_size = settings.fir_size
+    decimation = settings.decimation
+
+    form.checkBox_en_dc_compensation.setChecked(True if dc_comp=="on" else False)
+    form.doubleSpinBox_filterbw.setProperty("value", filt_bw)
+    form.spinBox_fir_tap_size.setProperty("value", fir_size)
+    form.spinBox_decimation.setProperty("value", decimation)
+
+
+    # Sync
+    en_sync = settings.en_sync
+    en_noise = settings.en_noise
+
+    form.checkBox_en_sync_display.setChecked(True if en_sync=="on" else False)
+    form.checkBox_en_noise_source.setChecked(True if en_noise=="on" else False)
+
+
+    # DOA Estimation
+    ant_arrangement_index = settings.ant_arrangement_index
+    ant_spacing = settings.ant_spacing
+    en_doa = settings.en_doa
+    en_bartlett = settings.en_bartlett
+    en_capon = settings.en_capon
+    en_MEM = settings.en_MEM
+    en_MUSIC = settings.en_MUSIC
+    en_fbavg = settings.en_fbavg
+
+    form.comboBox_antenna_alignment.setCurrentIndex(int(ant_arrangement_index))
+    form.doubleSpinBox_DOA_d.setProperty("value", ant_spacing)
+    form.checkBox_en_DOA.setChecked(True if en_doa=="on" else False)
+    form.checkBox_en_DOA_Bartlett.setChecked(True if en_bartlett=="on" else False)
+    form.checkBox_en_DOA_Capon.setChecked(True if en_capon=="on" else False)
+    form.checkBox_en_DOA_MEM.setChecked(True if en_MEM=="on" else False)
+    form.checkBox_en_DOA_MUSIC.setChecked(True if en_MUSIC=="on" else False)
+    form.checkBox_en_DOA_FB_avg.setChecked(True if en_fbavg=="on" else False)
+
+
+    # Passive Radar
+    en_pr = settings.en_pr
+    ref_ch = settings.ref_ch
+    surv_ch = settings.surv_ch
+    en_clutter = settings.en_clutter
+    filt_dim = settings.filt_dim
+    max_range = settings.max_range
+    max_doppler = settings.max_doppler
+    windowing_mode = settings.windowing_mode
+    dyn_range = settings.dyn_range
+    en_det = settings.en_det
+    est_win = settings.est_win
+    guard_win = settings.guard_win
+    thresh_det = settings.thresh_det
+
+    form.checkBox_en_passive_radar.setChecked(True if en_pr=="on" else False)
+    form.spinBox_ref_ch_select.setProperty("value", ref_ch)
+    form.spinBox_surv_ch_select.setProperty("value", surv_ch)
+    form.checkBox_en_td_filter.setChecked(True if en_clutter=="on" else False)
+    form.spinBox_td_filter_dimension.setProperty("value", filt_dim)
+    form.doubleSpinBox_cc_det_max_range.setProperty("value", max_range)
+    form.doubleSpinBox_cc_det_max_Doppler.setProperty("value", max_doppler)
+    form.comboBox_cc_det_windowing.setCurrentIndex(int(windowing_mode))
+    form.spinBox_rd_dyn_range.setProperty("value", dyn_range)
+    form.checkBox_en_autodet.setChecked(True if en_det=="on" else False)
+    form.spinBox_cfar_est_win.setProperty("value", est_win)
+    form.spinBox_cfar_guard_win.setProperty("value", guard_win)
+    form.doubleSpinBox_cfar_threshold.setProperty("value", thresh_det)
+
 
 def reboot_program():
     form.module_receiver.close()
@@ -948,12 +1038,27 @@ def do_pr():
 
     thresh_det = request.forms.get('thresh_det')
     form.doubleSpinBox_cfar_threshold.setProperty("value", thresh_det)
-
+    
     en_peakhold = request.forms.get('en_peakhold')
     form.checkBox_en_peakhold.setChecked(True if en_peakhold=="on" else False)
 
+    settings.en_pr = en_pr
+    settings.ref_ch = ref_ch
+    settings.surv_ch = surv_ch
+    settings.en_clutter = en_clutter
+    settings.filt_dim = filt_dim
+    settings.max_range = max_range
+    settings.max_doppler = max_doppler
+    settings.windowing_mode = windowing_mode
+    settings.dyn_range = dyn_range
+    settings.en_det = en_det
+    settings.est_win = est_win
+    settings.guard_win = guard_win
+    settings.thresh_det = thresh_det
 
     form.set_PR_params()
+
+    settings.write()
     return redirect('pr')
 
 @get('/doa')
@@ -1006,8 +1111,17 @@ def do_doa():
     en_fbavg = request.forms.get('en_fbavg')
     form.checkBox_en_DOA_FB_avg.setChecked(True if en_fbavg=="on" else False)
 
+    settings.ant_arrangement_index = ant_arrangement_index
+    settings.ant_spacing = ant_spacing
+    settings.en_doa = en_doa
+    settings.en_bartlett = en_bartlett
+    settings.en_capon = en_capon
+    settings.en_MEM = en_MEM
+    settings.en_MUSIC = en_MUSIC
+    settings.en_fbavg = en_fbavg
     form.set_DOA_params()
 
+    settings.write()
     return redirect('doa')
 
 
@@ -1044,6 +1158,8 @@ def do_sync():
         en_noise = request.forms.get('en_noise')
         form.checkBox_en_noise_source.setChecked(True if en_noise=="on" else False)
 
+        settings.en_sync = en_sync
+        settings.en_noise = en_noise
         form.switch_noise_source()
         form.set_sync_params()
 
@@ -1056,8 +1172,10 @@ def do_sync():
     if (request.POST.get('cal_iq') == 'cal_iq'):
         form.pb_calibrate_iq_clicked()
 
+    settings.write()
     return redirect('sync')
 
+@get('/')
 @get('/init')
 def init():
     center_freq = form.doubleSpinBox_center_freq.value()
@@ -1117,6 +1235,13 @@ def do_init():
             gain_index_4 = request.forms.get('gain_4')
             form.comboBox_gain_4.setCurrentIndex(int(gain_index_4))
 
+        settings.center_freq = center_freq
+        settings.samp_index = samp_index
+        settings.uniform_gain = uniform_gain
+        settings.gain_index = gain_index
+        settings.gain_index_2 = gain_index_2
+        settings.gain_index_3 = gain_index_3
+        settings.gain_index_4 = gain_index_4
         form.pb_rec_reconfig_clicked()
 
 
@@ -1133,6 +1258,10 @@ def do_init():
         decimation = request.forms.get('decimation')
         form.spinBox_decimation.setProperty("value", decimation)
 
+        settings.dc_comp = dc_comp
+        settings.filt_bw = filt_bw
+        settings.fir_size = fir_size
+        settings.decimation = decimation
         form.set_iq_preprocessing_params()
 
     if (request.POST.get('start') == 'start'):
@@ -1154,6 +1283,8 @@ def do_init():
     if (request.POST.get('reboot') == 'reboot'):
         reboot_program()
 
+    settings.write()
+
     return redirect('init')
 
 @get('/stats')
@@ -1169,4 +1300,5 @@ def stats():
     return template ('stats.tpl', {'upd_rate':upd_rate,
 				'ovr_drv':ovr_drv})
 
+init_settings()
 app.exec_()
