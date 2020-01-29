@@ -121,6 +121,28 @@
                 <h2>Automatic Detection (CA-CFAR)</h2>
             </div>
                 
+	<p>Dynamic Range <input type="number" value="{{dyn_range}}" step="1" name="dyn_range"/></p>
+
+	<p><b>Automatic Detection (CA-CFAR)</b></p>
+	<input type="checkbox" name="en_det" value="on" {{!'checked="checked"' if en_det >= 1 else ""}}>Enable/Disable<br>
+
+	<p>Estimation Window <input type="number" value="{{est_win}}" step="1" name="est_win"/></p>
+	<p>Guard Window <input type="number" value="{{guard_win}}" step="1" name="guard_win"/></p>
+	<p>Threshold [dB] <input type="number" value="{{thresh_det}}" step="0.01" name="thresh_det"/></p>
+
+	<input type="checkbox" name="en_peakhold" value="on" {{!'checked="checked"' if en_peakhold >= 1 else ""}}>Enable Peak Hold<br>
+
+
+	<p><input value="Update Paramaters" type="submit" /></p>
+</form>
+<iframe width=100% height=5% src="http://{{ip_addr}}:8080/stats"></iframe>
+<hr>
+<!--<script type="text/javascript" src="/static/refresh_image.js" charset="utf-8" style="float:right"></script>
+<body onload="JavaScript:init('/static/pr.jpg');">
+<canvas id="canvas"/>
+</body>-->
+
+<iframe width=100% height=100% src="http://{{ip_addr}}:8081/passive_radar.html"></iframe>
 
             <div class="field">
                 <div class="field-label">
