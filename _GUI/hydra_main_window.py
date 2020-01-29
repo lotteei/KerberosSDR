@@ -179,12 +179,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plt_PR.setLabel("bottom", "Range")
         self.plt_PR.setLabel("left", "Doppler (Speed)")
 
-        self.PR_interp_factor = 4
+        self.PR_interp_factor = 8
 
         self.plt_PR.getAxis("bottom").setScale(1.0/self.PR_interp_factor)
         self.plt_PR.getAxis("left").setScale(1.0/self.PR_interp_factor)
 
         rand_mat = np.random.rand(50,50)
+        self.CAFMatrixOld = 0 #np.random.rand(50,50)
         self.img_PR = pg.ImageView()
 
         self.plt_PR.addItem(self.img_PR.imageItem)
@@ -231,6 +232,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.checkBox_en_td_filter.stateChanged.connect(self.set_PR_params)
         self.checkBox_en_autodet.stateChanged.connect(self.set_PR_params)
         self.checkBox_en_noise_source.stateChanged.connect(self.switch_noise_source)
+        self.checkBox_en_peakhold.stateChanged.connect(self.set_PR_params) 
+
 
         # Connect spinbox signals
         self.doubleSpinBox_filterbw.valueChanged.connect(self.set_iq_preprocessing_params)
@@ -282,6 +285,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sync_time = time.time()
         self.spectrum_time = time.time()
 
+        # Init peak hold GUI setting
+        self.en_peakhold = False
 
 
 
@@ -502,6 +507,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # General channel settings
         self.module_signal_processor.ref_ch_id = self.spinBox_ref_ch_select.value()
         self.module_signal_processor.surv_ch_id = self.spinBox_surv_ch_select.value()
+
+        # Peak hold setting
+        if self.checkBox_en_peakhold.checkState():
+            self.en_peakhold = True
+        else:
+            self.en_peakhold = False
 
     def set_resync_time(self):
         self.module_signal_processor.resync_time = self.spinBox_resync_time.value()
@@ -778,8 +789,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #print("X-Size" + str(np.shape(CAFMatrix)[0]))
             #print("Y-Size" + str(np.shape(CAFMatrix)[1]))
 
-            CAFMatrix = CAFMatrix /  np.amax(CAFMatrix)  # Noramlize with the maximum value
+            #try:
+            #except:
+            #    print("first time")
+
+
+            CAFMatrix = CAFMatrix  /  np.amax(CAFMatrix)  # Noramlize with the maximum value
+
+            # Peak hold for PR
+            if self.en_peakhold:
+                CAFMatrixNew = np.maximum(self.CAFMatrixOld, CAFMatrix) #1 * self.CAFMatrixOld + 1 * CAFMatrix
+                self.CAFMatrixOld = CAFMatrixNew
+                CAFMatrix = CAFMatrixNew
+            else:
+                self.CAFMatrixOld = CAFMatrix                
+
             CAFMatrixLog = 20 * np.log10(CAFMatrix)  # Change to logscale
+
+
+
 
             CAFMatrixLog[CAFMatrixLog < -CAFDynRange] = -CAFDynRange
 
@@ -859,6 +887,9 @@ def pr():
     est_win = form.spinBox_cfar_est_win.value()
     guard_win = form.spinBox_cfar_guard_win.value()
     thresh_det = form.doubleSpinBox_cfar_threshold.value()
+    
+    en_peakhold = form.checkBox_en_peakhold.checkState()
+
     ip_addr = form.ip_addr
 
     return template ('pr.tpl', {'en_pr':en_pr,
@@ -874,6 +905,7 @@ def pr():
 				'est_win':est_win,
 				'guard_win':guard_win,
 				'thresh_det':thresh_det,
+                                'en_peakhold':en_peakhold,
 				'ip_addr':ip_addr})
 
 @post('/pr')
@@ -916,6 +948,10 @@ def do_pr():
 
     thresh_det = request.forms.get('thresh_det')
     form.doubleSpinBox_cfar_threshold.setProperty("value", thresh_det)
+
+    en_peakhold = request.forms.get('en_peakhold')
+    form.checkBox_en_peakhold.setChecked(True if en_peakhold=="on" else False)
+
 
     form.set_PR_params()
     return redirect('pr')

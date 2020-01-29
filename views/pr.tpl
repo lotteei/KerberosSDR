@@ -39,6 +39,8 @@
 	<p>Guard Window <input type="number" value="{{guard_win}}" step="1" name="guard_win"/></p>
 	<p>Threshold [dB] <input type="number" value="{{thresh_det}}" step="0.01" name="thresh_det"/></p>
 
+	<input type="checkbox" name="en_peakhold" value="on" {{!'checked="checked"' if en_peakhold >= 1 else ""}}>Enable Peak Hold<br>
+
 
 	<p><input value="Update Paramaters" type="submit" /></p>
 </form>
