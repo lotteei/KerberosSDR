@@ -884,8 +884,8 @@ def init_settings():
 
 
     # Sync
-    en_sync = settings.en_sync
-    en_noise = settings.en_noise
+    en_sync = "off" #settings.en_sync
+    en_noise = "off" #settings.en_noise
 
     form.checkBox_en_sync_display.setChecked(True if en_sync=="on" else False)
     form.checkBox_en_noise_source.setChecked(True if en_noise=="on" else False)
@@ -894,7 +894,7 @@ def init_settings():
     # DOA Estimation
     ant_arrangement_index = settings.ant_arrangement_index
     ant_spacing = settings.ant_spacing
-    en_doa = settings.en_doa
+    en_doa = "off" #settings.en_doa
     en_bartlett = settings.en_bartlett
     en_capon = settings.en_capon
     en_MEM = settings.en_MEM
@@ -912,7 +912,7 @@ def init_settings():
 
 
     # Passive Radar
-    en_pr = settings.en_pr
+    en_pr = "off" #settings.en_pr
     ref_ch = settings.ref_ch
     surv_ch = settings.surv_ch
     en_clutter = settings.en_clutter
@@ -925,6 +925,7 @@ def init_settings():
     est_win = settings.est_win
     guard_win = settings.guard_win
     thresh_det = settings.thresh_det
+    en_peakhold = settings.en_peakhold
 
     form.checkBox_en_passive_radar.setChecked(True if en_pr=="on" else False)
     form.spinBox_ref_ch_select.setProperty("value", ref_ch)
@@ -939,6 +940,7 @@ def init_settings():
     form.spinBox_cfar_est_win.setProperty("value", est_win)
     form.spinBox_cfar_guard_win.setProperty("value", guard_win)
     form.doubleSpinBox_cfar_threshold.setProperty("value", thresh_det)
+    form.checkBox_en_peakhold.setChecked(True if en_peakhold=="on" else False)
 
 
 def reboot_program():
@@ -1055,6 +1057,7 @@ def do_pr():
     settings.est_win = est_win
     settings.guard_win = guard_win
     settings.thresh_det = thresh_det
+    settings.en_peakhold = en_peakhold
 
     form.set_PR_params()
 

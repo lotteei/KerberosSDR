@@ -50,6 +50,7 @@ en_det = settings.get("en_det", None)
 est_win = settings.get("est_win", "10")
 guard_win = settings.get("guard_win", "4")
 thresh_det = settings.get("thresh_det", "13.0")
+en_peakhold = settings.get("en_peakhold", None)
 
 def write():
     data = {}
@@ -95,6 +96,7 @@ def write():
     data["est_win"] = est_win
     data["guard_win"] = guard_win
     data["thresh_det"] = thresh_det
+    data["en_peakhold"] = en_peakhold
 
     with open('settings.json', 'w') as outfile:
         json.dump(data, outfile)
