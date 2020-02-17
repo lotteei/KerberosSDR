@@ -18,6 +18,7 @@ PYTHONLOG="/dev/null"
 # If you want to kill all matching processes on startup without prompt. Otherwise, set it to anything else. 
 FORCE_KILL="yes"
 
+NPROC=`expr $(nproc) -1`
 
 ### Uncomment the following section to automatically get the IP address from interface wlan0 ###
 ### Don't forget to comment out "IPADDR="0.0.0.0" ###
@@ -109,9 +110,9 @@ mkfifo _receiver/C/rec_control_fifo
 # Start programs at realtime priority levels
 curr_user=$(whoami)
 
-sudo chrt -r 50 ionice -c 1 -n 0 ./_receiver/C/rtl_daq $BUFF_SIZE 2>$RTLDAQLOG 1| \
-	sudo chrt -r 50 ./_receiver/C/sync $BUFF_SIZE 2>$SYNCLOG 1| \
-	sudo chrt -r 50 ./_receiver/C/gate $BUFF_SIZE 2>$GATELOG 1| \
+sudo chrt -r 50 taskset -c $NPROC ionice -c 1 -n 0 ./_receiver/C/rtl_daq $BUFF_SIZE 2>$RTLDAQLOG 1| \
+	sudo chrt -r 50 taskset -c $NPROC ./_receiver/C/sync $BUFF_SIZE 2>$SYNCLOG 1| \
+	sudo chrt -r 50 taskset -c $NPROC ./_receiver/C/gate $BUFF_SIZE 2>$GATELOG 1| \
 	sudo nice -n -20 sudo -u $curr_user python3 -O _GUI/hydra_main_window.py $BUFF_SIZE $IPADDR &>$PYTHONLOG &
 
 # Start PHP webserver which serves the updating images
