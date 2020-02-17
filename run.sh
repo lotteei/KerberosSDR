@@ -18,7 +18,7 @@ PYTHONLOG="/dev/null"
 # If you want to kill all matching processes on startup without prompt. Otherwise, set it to anything else. 
 FORCE_KILL="yes"
 
-NPROC=`expr $(nproc) -1`
+NPROC=`expr $(nproc)-1`
 
 ### Uncomment the following section to automatically get the IP address from interface wlan0 ###
 ### Don't forget to comment out "IPADDR="0.0.0.0" ###
