@@ -39,7 +39,7 @@
                 <label for="en_noise">Noise Source ON/OFF</label>
             </div>
             <div class="field-body">
-                <input type="checkbox" name="" value="on" {{!'checked="checked"' if en_noise >= 1 else ""}}>
+                <input type="checkbox" name="en_noise" value="on" {{!'checked="checked"' if en_noise >= 1 else ""}}>
             </div>
         </div>
         
