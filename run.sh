@@ -1,7 +1,9 @@
 #!/bin/bash
 
-BUFF_SIZE=256 #Must be a power of 2. Normal values are 128, 256. 512 is possible on a fast PC.
+#If you change this BUFF_SIZE, go to hydra_main_widow.py and change the same variable there
+BUFF_SIZE=512 #Must be a power of 2. Normal values are 128, 256. 512 is possible on a fast PC.
 IPADDR="0.0.0.0"
+#IPADDR="193.156.35.103"  Ikke vits å ha med når vi ikke bruker den 
 IPPORT="8081"
 
 # set to /dev/null for no logging, set to some file for logfile. You can also set it to the same file. 

@@ -26,6 +26,8 @@
 
 from PyQt4 import QtCore, QtGui
 
+
+
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -668,6 +670,12 @@ class Ui_MainWindow(object):
         self.label_power_level = QtGui.QLabel(self.groupBox_6)
         self.label_power_level.setObjectName(_fromUtf8("label_power_level"))
         self.gridLayout_14.addWidget(self.label_power_level, 1, 1, 1, 1)
+
+        #New code, integration time
+        self.label_intgr_time = QtGui.QLabel(self.groupBox_6)
+        self.label_intgr_time.setObjectName(_fromUtf8("label_intgr_time"))
+        self.gridLayout_14.addWidget(self.label_intgr_time, 2, 1, 1, 1)
+
         self.label_17 = QtGui.QLabel(self.groupBox_6)
         self.label_17.setObjectName(_fromUtf8("label_17"))
         self.gridLayout_14.addWidget(self.label_17, 1, 0, 1, 1)
@@ -678,6 +686,14 @@ class Ui_MainWindow(object):
         self.label_22.setObjectName(_fromUtf8("label_22"))
         self.gridLayout_14.addWidget(self.label_22, 0, 0, 1, 1)
         self.gridLayout_15.addLayout(self.gridLayout_14, 2, 0, 1, 1)
+
+        # Integrasjonstid
+        self.label_38 = QtGui.QLabel(self.groupBox_6)
+        self.label_38.setObjectName(_fromUtf8("label_38"))
+        self.gridLayout_14.addWidget(self.label_38, 2, 0, 1, 1)
+
+
+
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.gridLayout_15.addItem(spacerItem1, 5, 0, 1, 1)
         self.pushButton_close = QtGui.QPushButton(self.groupBox_6)
@@ -969,6 +985,11 @@ class Ui_MainWindow(object):
         self.label_17.setText(_translate("KerberosSDR", "Powel level:", None))
         self.label_update_rate.setText(_translate("KerberosSDR", "-ms", None))
         self.label_22.setText(_translate("KerberosSDR", "Update rate:", None))
+
+        #New code, integration time
+        self.label_38.setText(_translate("KerberosSDR", "Integration time:", None))
+        self.label_intgr_time.setText(_translate("KerberosSDR", "-s", None))
+
         self.pushButton_close.setText(_translate("KerberosSDR", "Exit", None))
         self.pushButton_proc_control.setText(_translate("KerberosSDR", "Start processing", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_spectrum), _translate("KerberosSDR", "Configuration and Spectrum", None))

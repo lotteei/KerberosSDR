@@ -18,6 +18,9 @@
 
 # -*- coding: utf-8 -*
 
+#If you change this vaiable, you have to change the same variable in run.sh!
+BUFF_SIZE=512 #Must be a power of 2. Normal values are 128, 256. 512 is possible on a fast PC.
+
 import sys
 import os
 import time
@@ -63,6 +66,7 @@ from matplotlib import cm
 #from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
 #import matplotlib.pyplot as plt
 #import matplotlib.patches as patches
+
 
 
 from hydra_main_window_layout import Ui_MainWindow
@@ -177,11 +181,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.export_PR = pg.exporters.ImageExporter(self.win_PR.scene())
 
         self.plt_PR = self.win_PR.addPlot(Title="Range-Doppler Matrix")
-        self.plt_PR.setLabel("bottom", "Range")
-        self.plt_PR.setLabel("left", "Doppler (Speed)")
+        self.plt_PR.setLabel("bottom", "Range (km)")
+        self.plt_PR.setLabel("left", "Speed (km/h)")
 
         self.PR_interp_factor = 8
 
+	#Passiv radar aksene
         self.plt_PR.getAxis("bottom").setScale(1.0/self.PR_interp_factor)
         self.plt_PR.getAxis("left").setScale(1.0/self.PR_interp_factor)
 
@@ -200,6 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         colormap._init()
         lut = (colormap._lut * 255).view(np.ndarray)
         self.img_PR.imageItem.setLookupTable(lut)
+	
 
         #self.img_PR.setPredefinedGradient('spectrum')
 
@@ -553,6 +559,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def pb_del_sync_history_clicked(self):
         self.module_signal_processor.delete_sync_history()
 
+####----------------------------
     def power_level_update(self, over_drive_flag):
         if over_drive_flag:
             red_text = "<span style=\" font-size:8pt; font-weight:600; color:#ff0000;\" >"
@@ -565,10 +572,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             green_text += ("</span>")
             self.label_power_level.setText(green_text)
     def period_time_update(self, update_period):
+	#New code, implementing integration time depending on sampling freq and BUFF_SIZE
+        sampling_freq = float(form.comboBox_sampling_freq.currentText()) * 10 ** 6
+        self.label_intgr_time.setText(str(round(BUFF_SIZE*1024/sampling_freq, 4)) + " s")
+            
         if update_period > 1:
             self.label_update_rate.setText("%.1f s" %update_period)
         else:
             self.label_update_rate.setText("%.1f ms" %(update_period*1000))
+
+  
+
     def spectrum_plot(self):
         xw1 = self.module_signal_processor.spectrum[1,:]
         xw2 = self.module_signal_processor.spectrum[2,:]
@@ -794,8 +808,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #except:
             #    print("first time")
 
-
-            CAFMatrix = CAFMatrix  /  np.amax(CAFMatrix)  # Noramlize with the maximum value
+#Kommentert ut denne for aa prove aa gjøre matrix roligere
+            #CAFMatrix = CAFMatrix  /  np.amax(CAFMatrix)  # Noramlize with the maximum value
 
             # Peak hold for PR
             if self.en_peakhold:
@@ -806,6 +820,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.CAFMatrixOld = CAFMatrix                
 
             CAFMatrixLog = 20 * np.log10(CAFMatrix)  # Change to logscale
+
 
 
 
@@ -822,6 +837,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             plotPRImage = scipy.ndimage.zoom(CAFMatrixLog, self.PR_interp_factor, order=3)
             self.img_PR.clear()
             self.img_PR.setImage(plotPRImage)
+           
 
 
         else:
@@ -840,11 +856,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.PR_time = currentTime
             self.export_PR.export(toBytes=True).save('/ram/pr.jpg', quality=30)
 
+#New code
+        
+        # Set bistatic range X-AXIS
+        max_range = int(self.doubleSpinBox_cc_det_max_range.value())
+        axx = self.plt_PR.getAxis("bottom")
+        matrix_xSize = np.shape(plotPRImage)[1]
+	
+        conv_const = 0.3/float(form.comboBox_sampling_freq.currentText())    #Converting constant: light_speed/sampling_freq
+        axx.setTicks([[(0, 0), (matrix_xSize * 0.25, round((max_range * conv_const * 0.25), 2)), (matrix_xSize / 2, round((max_range * conv_const * 0.5), 2)), (matrix_xSize * 0.75, round((max_range * conv_const * 0.75), 2)), (matrix_xSize, round((max_range * conv_const), 2))], []])
+
         # Set doppler speed Y-AXIS
         max_Doppler = int(self.doubleSpinBox_cc_det_max_Doppler.value())
         ay = self.plt_PR.getAxis('left')
         matrix_ySize = np.shape(plotPRImage)[0]
-        ay.setTicks([[(0, -max_Doppler), (matrix_ySize * 0.25, -max_Doppler * 0.5), (matrix_ySize/2, 0), (matrix_ySize * 0.75, max_Doppler * 0.5), (matrix_ySize, max_Doppler)], []])
+        
+#Prøver å sette fart i stedet for Hz
+#Dette er konvertering fra Hz til km/h, på center_freq=self.doubleSpinBox_center_freq.value().
+#Finner ingen andre måter å få senter frekvens på, freq, center_freq går ikke. 
+        hz_to_kph = 300/self.doubleSpinBox_center_freq.value()*3.6      #Konverteringsfaktor
+        ay.setTicks([[(0, round(-(max_Doppler * hz_to_kph))), (matrix_ySize * 0.25, round(-(max_Doppler * 0.5 * hz_to_kph))), (matrix_ySize/2, 0), (matrix_ySize * 0.75, round(max_Doppler * 0.5 * hz_to_kph)), (matrix_ySize, round(max_Doppler* hz_to_kph))], []])
 
 
 app = QApplication(sys.argv)

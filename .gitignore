@@ -13,3 +13,7 @@ sim
 sync
 __pycache__
 *.save
+data/
+hydra_samples.npy
+quicklook.py
+

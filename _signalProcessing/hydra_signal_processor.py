@@ -371,9 +371,11 @@ class SignalProcessor(QtCore.QThread):
            #surv_ch = det.windowing(surv_ch, "Rectangular")
         else:
            surv_ch = det.windowing(surv_ch, "Hamming")
-           
+
+#Prøve å gjøre noe med dette. Forandrer cc_detector_ons() til cc_detector_fd()
+#Update: gikk ikke, PR funket ikke med dette, skjermen viste ingenting
         self.RD_matrix = det.cc_detector_ons(ref_ch, surv_ch, self.fs, self.max_Doppler, self.max_range, verbose=0, Qt_obj=None)
-        
+
         if self.en_PR_autodet:
             self.hit_matrix = CA_CFAR(self.RD_matrix,self.cfar_win_params, self.cfar_threshold)            
         #print("[ DONE ] Range-Doppler processing finished")
