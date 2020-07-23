@@ -80,3 +80,7 @@ Edit the run.sh file and comment out the >&/dev/null parts on the last line to s
 
 
 This software was 95% developed by Tamas Peto, and makes use of his pyAPRIL and pyARGUS libraries. See his website at www.tamaspeto.com
+
+# KerberosSDR
+Modified code KerberosSDR
+
