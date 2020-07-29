@@ -84,4 +84,6 @@ This software was 95% developed by Tamas Peto, and makes use of his pyAPRIL and 
 # KerberosSDR - modified code 
 * Added integration time
 * Changed x- and y-axis on PR window, from doppler to speed, and from range to rang [km]
+* Improved display of the range-doppler matrix (PR-window)
+
 
